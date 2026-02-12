@@ -37,7 +37,7 @@ canvas{position:absolute;inset:0}
 #intro *{z-index:1}
 
 .valentine-title{
-  font-size:1.6rem;
+  font-size:1.3rem;
   letter-spacing:3px;
   margin-bottom:14px;
   animation:pulse 2s infinite;
@@ -87,8 +87,9 @@ button{
 #no{
   background:#f44336;color:#fff;
   position:absolute;
-  left:50%;top:50%;
-  transform:translate(-40%,-60%);
+  left:65%;   /* lo movemos más a la derecha */
+  top:50%;
+  transform:translate(-50%,-50%);
   z-index:2;
   animation:bubble 1.1s infinite;
 }
@@ -198,9 +199,9 @@ button{
 #skyNight{
   background:linear-gradient(180deg,#0a0f2c,#1b1f4a);
   opacity:0;
-  z-index:1;
+  z-index:5;
+  pointer-events:auto;
 }
-
 
 /* Estrellas animadas */
 .star{
@@ -232,7 +233,8 @@ button{
   border-radius:50%;
   box-shadow:0 0 12px #fff, 0 0 20px #fff;
   cursor:pointer;
-  z-index:5;
+  z-index:100;
+  pointer-events:auto;
   transition:transform .3s ease;
 }
 
@@ -243,20 +245,33 @@ button{
 /* 🌟 Estrella final */
 .final-star{
   position:absolute;
-  width:10px;
-  height:10px;
-  background:gold;
-  border-radius:50%;
-  box-shadow:0 0 20px gold, 0 0 40px gold;
-  animation:pulseFinal 2s infinite ease-in-out;
+  width:60px;
+  height:60px;
+  left:50%;
+  top:35%;
+  transform:translate(-50%,-50%);
   cursor:pointer;
-  z-index:6;
+  z-index:80;
+  animation:starPulse 2.5s infinite ease-in-out;
 }
 
-@keyframes pulseFinal{
-  0%{ transform:scale(1); }
-  50%{ transform:scale(1.4); }
-  100%{ transform:scale(1); }
+/* Forma estrella */
+.final-star::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle, #fff 0%, #ffe066 40%, transparent 70%);
+  border-radius:50%;
+  box-shadow:
+    0 0 30px #fff,
+    0 0 60px #ffd700,
+    0 0 100px #ffea00;
+}
+
+@keyframes starPulse{
+  0%{ transform:translate(-50%,-50%) scale(1); }
+  50%{ transform:translate(-50%,-50%) scale(1.2); }
+  100%{ transform:translate(-50%,-50%) scale(1); }
 }
 
 /* 💬 Mensaje flotante */
@@ -274,6 +289,7 @@ button{
   opacity:0;
   transition:opacity 1s ease;
   z-index:10;
+  pointer-events:none;
 }
 .star-message.show{
   opacity:1;
@@ -634,6 +650,7 @@ function raiseCamera(){
   setTimeout(()=>{
     skyNight.style.opacity = '1';
     bunnyImg.style.opacity = '0';
+	bunnyImg.style.pointerEvents = 'none';
     createStars();
     showStarInstruction();
   },2000);
@@ -694,7 +711,8 @@ function createStars(){
     special.style.top = Math.random()*80 + '%';
     special.style.left = Math.random()*90 + '%';
 
-    special.addEventListener('click', ()=>{
+    special.addEventListener('touchstart', (e)=>{
+  e.stopPropagation();
       if(special.dataset.found) return;
 
       special.dataset.found = true;
@@ -702,55 +720,61 @@ function createStars(){
       showStarMessage(starMessages[specialFound]);
       specialFound++;
 
-      if(specialFound === totalSpecial){
-        createFinalStar();
-      }
+if(specialFound === totalSpecial){
+
+  // Esperar 1 segundo antes de mostrar la estrella final
+  setTimeout(()=>{
+    createFinalStar();
+  },1000);
+
+}
     });
 
     sky.appendChild(special);
   }
 }
 
+let currentStarMessage = null;
+
 function showStarMessage(text){
 
   const sky = document.getElementById('skyNight');
 
-  const msg = document.createElement('div');
-  msg.classList.add('star-message');
-  msg.textContent = text;
+  if(!currentStarMessage){
+    currentStarMessage = document.createElement('div');
+    currentStarMessage.classList.add('star-message');
+    sky.appendChild(currentStarMessage);
+  }
 
-  sky.appendChild(msg);
+  currentStarMessage.textContent = text;
+  currentStarMessage.classList.add('show');
 
-  setTimeout(()=> msg.classList.add('show'),100);
+  clearTimeout(currentStarMessage.hideTimer);
 
-  setTimeout(()=>{
-    msg.classList.remove('show');
-    setTimeout(()=> msg.remove(),1000);
+  currentStarMessage.hideTimer = setTimeout(()=>{
+    currentStarMessage.classList.remove('show');
   },4000);
 }
+
 function createFinalStar(){
 
   const sky = document.getElementById('skyNight');
 
   const finalStar = document.createElement('div');
   finalStar.classList.add('final-star');
-  finalStar.style.top = "30%";
-  finalStar.style.left = "50%";
-  finalStar.style.transform = "translateX(-50%)";
 
   finalStar.addEventListener('click', ()=>{
-
     finalStar.remove();
 
     const buttons = document.getElementById('finalButtons');
     buttons.style.display = 'block';
     buttons.style.opacity = '1';
     buttons.style.pointerEvents = 'auto';
-
   });
 
   sky.appendChild(finalStar);
 }
+
 
 function showStarInstruction(){
 
@@ -775,7 +799,6 @@ function startFinalScene(){
 
   // Oscurecer más el cielo
   sky.classList.add('sky-final');
-  launchAlien();
   
   // Crear frase final
   const phrase = document.createElement('div');
