@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Valentine</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Press Start 2P',cursive;
+  width:100vw;height:100vh;
+  overflow:hidden;
+  touch-action:none;
+}
+
+/* ===== SCREENS ===== */
+.screen{
+  position:absolute;
+  inset:0;
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+.screen.active{display:flex}
+
+/* ===== INTRO ===== */
+#intro{
+  flex-direction:column;
+  background:linear-gradient(180deg,#1a1a2e,#16213e,#0f3460);
+  text-align:center;
+  color:#ff6b9d;
+}
+canvas{position:absolute;inset:0}
+#intro *{z-index:1}
+
+.valentine-title{
+  font-size:1.6rem;
+  letter-spacing:3px;
+  margin-bottom:14px;
+  animation:pulse 2s infinite;
+}
+.valentine-sub{
+  font-size:0.6rem;
+  color:#e5e5e5;
+  animation:blink 1.5s infinite;
+}
+@keyframes pulse{50%{transform:scale(1.12)}}
+@keyframes blink{50%{opacity:.4}}
+
+/* ===== QUESTION ===== */
+#question{
+  background:linear-gradient(135deg,#ff9a9e,#fecfef);
+}
+.box{
+  background:#fff;
+  border:8px solid #ff6b9d;
+  border-radius:20px;
+  padding:36px 26px;
+  width:90%;max-width:360px;
+  text-align:center;
+}
+.box h2{
+  color:#ff1744;
+  margin-bottom:50px;
+  font-size:0.95rem;
+}
+.buttons{position:relative;height:140px}
+
+/* ===== BUTTONS ===== */
+button{
+  font-family:'Press Start 2P';
+  padding:16px 26px;
+  font-size:0.9rem;
+  border:6px solid #000;
+  box-shadow:0 6px 0 #000;
+}
+#yes{
+  background:#4caf50;color:#fff;
+  position:absolute;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  z-index:1;
+}
+#no{
+  background:#f44336;color:#fff;
+  position:absolute;
+  left:50%;top:50%;
+  transform:translate(-40%,-60%);
+  z-index:2;
+  animation:bubble 1.1s infinite;
+}
+@keyframes bubble{
+  50%{transform:translate(-40%,-60%) scale(1.15)}
+}
+
+/* ===== YORKIE ===== */
+#yorkieScene{
+  background:linear-gradient(180deg,#87ceeb,#98d8c8);
+  overflow:hidden;
+}
+.yorkie-wrap{
+  position:absolute;
+  bottom:120px;
+  left:-200px;
+  width:160px;
+}
+.yorkie{
+  position:relative;
+  width:120px;height:90px;
+}
+.yorkie::before{
+  content:'';
+  position:absolute;
+  width:60px;height:40px;
+  background:#d4a574;
+  border:2px solid #8b6f47;
+  top:35px;left:30px;
+}
+.yorkie::after{
+  content:'';
+  position:absolute;
+  width:38px;height:32px;
+  background:#d4a574;
+  border:2px solid #8b6f47;
+  border-radius:50%;
+  top:20px;left:12px;
+}
+.eye{width:4px;height:4px;background:#000;border-radius:50%;position:absolute;top:32px}
+.eye.l{left:24px}
+.eye.r{left:34px}
+.nose{width:6px;height:5px;background:#000;position:absolute;top:38px;left:30px}
+.ear{width:14px;height:18px;background:#d4a574;border:2px solid #8b6f47;position:absolute;top:8px}
+.ear.l{left:4px;transform:rotate(-20deg)}
+.ear.r{left:46px;transform:rotate(20deg)}
+.leg{
+  width:10px;height:24px;
+  background:#d4a574;
+  border:2px solid #8b6f47;
+  position:absolute;bottom:0;
+}
+.fl{left:28px}.fr{left:42px}.bl{left:58px}.br{left:72px}
+.tail{
+  width:8px;height:24px;
+  background:#d4a574;
+  border:2px solid #8b6f47;
+  position:absolute;right:-6px;bottom:14px;
+  transform-origin:top;
+}
+
+/* ===== SUCCESS ===== */
+#success{
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  color:#fff;
+  font-size:1.2rem;
+  text-align:center;
+}
+
+/* ===== PARTICLES (EFERVESCENCIA) ===== */
+.particle{
+  position:absolute;
+  pointer-events:none;
+  animation:pop 1.3s ease-out forwards;
+}
+@keyframes pop{
+  to{
+    opacity:0;
+    transform:translate(var(--x),var(--y)) scale(1.4);
+  }
+}
+/* ===== BAD BUNNY ===== */
+#badBunnyScene{
+  background: linear-gradient(180deg,#87ceeb,#98d8c8);
+  background-repeat: no-repeat;
+  background-size: 100% 200%;
+  background-position: center bottom;
+
+  transform-origin: center center;
+  will-change: background-position;
+}
+#skyDay,
+#skyNight{
+  position:absolute;
+  inset:0;
+  background-size:100% 200%;
+  background-position:center bottom;
+  transition:background-position 5s cubic-bezier(.22,.61,.36,1),
+             opacity 4s ease;
+}
+
+#skyDay{
+  background:linear-gradient(180deg,#87ceeb,#98d8c8);
+  z-index:0;
+}
+
+#skyNight{
+  background:linear-gradient(180deg,#0a0f2c,#1b1f4a);
+  opacity:0;
+  z-index:1;
+}
+
+
+/* Estrellas animadas */
+.star{
+  position:absolute;
+  width:2px;
+  height:2px;
+  background:white;
+  border-radius:50%;
+  box-shadow:0 0 6px white;
+  animation: twinkle 1.8s infinite ease-in-out alternate;
+}
+
+@keyframes twinkle{
+  from{
+    opacity:0.3;
+    transform:scale(1);
+  }
+  to{
+    opacity:1;
+    transform:scale(2.2);
+  }
+}
+/* ⭐ Estrellas especiales */
+.special-star{
+  position:absolute;
+  width:6px;
+  height:6px;
+  background:white;
+  border-radius:50%;
+  box-shadow:0 0 12px #fff, 0 0 20px #fff;
+  cursor:pointer;
+  z-index:5;
+  transition:transform .3s ease;
+}
+
+.special-star:hover{
+  transform:scale(1.6);
+}
+
+/* 🌟 Estrella final */
+.final-star{
+  position:absolute;
+  width:10px;
+  height:10px;
+  background:gold;
+  border-radius:50%;
+  box-shadow:0 0 20px gold, 0 0 40px gold;
+  animation:pulseFinal 2s infinite ease-in-out;
+  cursor:pointer;
+  z-index:6;
+}
+
+@keyframes pulseFinal{
+  0%{ transform:scale(1); }
+  50%{ transform:scale(1.4); }
+  100%{ transform:scale(1); }
+}
+
+/* 💬 Mensaje flotante */
+.star-message{
+  position:absolute;
+  top:35%;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,.6);
+  color:white;
+  padding:14px 18px;
+  border-radius:12px;
+  font-size:.7rem;
+  text-align:center;
+  opacity:0;
+  transition:opacity 1s ease;
+  z-index:10;
+}
+.star-message.show{
+  opacity:1;
+}
+/* 📢 Instrucción superior */
+.star-instruction{
+  position:absolute;
+  top:10px;
+  width:100%;
+  text-align:center;
+  font-size:.55rem;
+  color:white;
+  opacity:0;
+  transition:opacity 1s ease;
+  z-index:50;
+}
+.star-instruction.show{
+  opacity:1;
+}
+/* 🌌 Cielo más oscuro final */
+.sky-final{
+  background:linear-gradient(180deg,#050816,#0b1026) !important;
+  transition:background 3s ease;
+}
+
+/* ☄ Meteoritos */
+.meteor{
+  position:absolute;
+  width:2px;
+  height:100px;
+  background:linear-gradient(to top, white, transparent);
+  opacity:0.9;
+  transform:rotate(45deg);
+  animation:meteorFall linear forwards;
+}
+
+@keyframes meteorFall{
+  to{
+    transform:translateY(800px) translateX(-300px) rotate(45deg);
+    opacity:0;
+  }
+}
+
+/* 💖 Frase final */
+.final-phrase{
+  position:absolute;
+  top:40%;
+  width:100%;
+  text-align:center;
+  font-size:.9rem;
+  color:white;
+  opacity:0;
+  transition:opacity 4s ease;
+  z-index:50;
+}
+
+/* FIN esquina */
+.final-end{
+  position:absolute;
+  bottom:10px;
+  right:12px;
+  font-size:.5rem;
+  color:white;
+  opacity:0;
+  transition:opacity 3s ease;
+  z-index:50;
+}
+
+#badBunny{
+  position:absolute;
+  left:50%;
+  top:55%;
+  transform:translate(-50%,-50%) scale(0.4);
+  image-rendering:pixelated;
+  transition:
+    transform 5s cubic-bezier(.22,.61,.36,1),
+    opacity 4s ease;
+  width:180px;
+  z-index:2;
+  opacity:1;
+}
+
+/* ===== FINAL SCENE ===== */
+
+#finalMessage{
+  position:absolute;
+  top:20%;
+  width:100%;
+  text-align:center;
+  font-size:1rem;
+  color:white;
+  opacity:0;
+  transform:translateY(20px);
+  transition:all 2s ease;
+  text-shadow:0 0 10px rgba(255,255,255,.6);
+}
+
+#finalMessage.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+#finalButtons{
+  position:absolute;
+  bottom:40px;
+  width:100%;
+  text-align:center;
+  display:none;
+  z-index:60;   /* MÁS ALTO QUE TODO */
+}
+
+#finalButtons button{
+  margin:10px;
+  padding:14px 20px;
+  font-size:0.8rem;
+  background:#fff;
+  color:#000;
+  border:4px solid #000;
+}
+
+#alienShip{
+  position:absolute;
+  top:45%;
+  left:-300px;
+  width:160px;
+  transform:scale(0.4);
+  z-index:10000; /* MÁS ALTO QUE TODO */
+  pointer-events:none;
+}
+
+@keyframes alienFly{
+  0%{
+    left:-300px;
+    transform:scale(0.4);
+  }
+  100%{
+    left:120%;
+    transform:scale(1.2);
+  }
+}
+
+
+</style>
+</head>
+
+<body>
+
+<!-- INTRO -->
+<div id="intro" class="screen active">
+  <h1 class="valentine-title">💕 MI VALENTINE 💕</h1>
+  <p class="valentine-sub">toca la pantalla</p>
+  <canvas id="hearts"></canvas>
+</div>
+
+<!-- QUESTION -->
+<div id="question" class="screen">
+  <div class="box">
+    <h2>¿Quieres ser mi Valentine?</h2>
+    <div class="buttons" id="zone">
+      <button id="yes">SÍ</button>
+      <button id="no">NO</button>
+    </div>
+  </div>
+</div>
+
+<!-- BAD BUNNY WALK -->
+<div id="badBunnyScene" class="screen">
+
+<div id="skyDay"></div>
+<div id="skyNight"></div>
+<img id="alienShip" src="https://lh3.googleusercontent.com/d/1nuh2jdin2cAXTKp4AzeCf7xtO4yqRZtG=w1000">
+
+  <img id="badBunny" src="" alt="Bad Bunny Pixel">
+
+  <div id="finalMessage">
+    💖 Gracias por ser mi San Valentín 💖
+  </div>
+
+  <div id="finalButtons">
+    <button id="continueBtn">Continuar</button>
+    <button id="stopBtn">Parar aquí</button>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div id="success" class="screen">💖 ¡Sabía que dirías que sí! 💖</div>
+
+<!-- AUDIO -->
+<audio id="walk" src="https://avaldiviezoch.github.io/valent/walk.mp3"></audio>
+<audio id="pop"  src="https://avaldiviezoch.github.io/valent/pop.mp3"></audio>
+
+<script>
+/* ===== HEARTS ===== */
+const canvas=document.getElementById('hearts'),ctx=canvas.getContext('2d');
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight}
+resize();addEventListener('resize',resize);
+const hearts=[...Array(45)].map(()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*4+3,s:Math.random()*1+.6}));
+(function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  hearts.forEach(h=>{
+    h.y+=h.s;if(h.y>canvas.height)h.y=-10;
+    ctx.fillStyle='#ff6b9d';
+    ctx.beginPath();ctx.arc(h.x,h.y,h.r,0,Math.PI*2);ctx.fill();
+  });
+  requestAnimationFrame(draw);
+})();
+
+/* ===== SCREENS ===== */
+const intro=document.getElementById('intro');
+const question=document.getElementById('question');
+const success=document.getElementById('success');
+
+/* ===== INTRO → QUESTION ===== */
+intro.addEventListener('touchstart',()=>{
+  intro.classList.remove('active');
+  question.classList.add('active');
+},{once:true});
+
+/* ===== QUESTION → BAD BUNNY ===== */
+document.getElementById('yes').addEventListener('touchstart',()=>{
+  question.classList.remove('active');
+  badBunnyScene.classList.add('active');
+
+  // 🔓 Desbloqueo de audios (CLAVE)
+  walk.currentTime = 0;
+  pop.currentTime = 0;
+  
+walk.load();
+pop.load();
+
+  startBadBunnyWalk();
+});
+
+/* ===== QUESTION → YORKIE ===== */
+const walk=document.getElementById('walk');
+const pop=document.getElementById('pop');
+
+/* ===== NO BUTTON ESCAPE + EFERVESCENCIA ===== */
+const no=document.getElementById('no'),zone=document.getElementById('zone');
+
+function escape(x,y){
+  const z=zone.getBoundingClientRect(),b=no.getBoundingClientRect();
+  no.style.left=Math.random()*(z.width-b.width)+'px';
+  no.style.top=Math.random()*(z.height-b.height)+'px';
+  burst(x,y);
+}
+
+zone.addEventListener('touchmove',e=>{
+  const t=e.touches[0];
+  const r=no.getBoundingClientRect();
+  if(Math.hypot(r.left+r.width/2-t.clientX,r.top+r.height/2-t.clientY)<70)
+    escape(t.clientX,t.clientY);
+});
+no.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  const t=e.touches[0];
+  escape(t.clientX,t.clientY);
+});
+
+/* ===== PARTICLES ===== */
+function burst(x,y){
+  for(let i=0;i<6;i++){
+    const p=document.createElement('span');
+    p.className='particle';
+    p.textContent='💥';
+    p.style.left=x+'px';
+    p.style.top=y+'px';
+    p.style.setProperty('--x',(Math.random()-0.5)*120+'px');
+    p.style.setProperty('--y',(Math.random()-0.5)*120+'px');
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),1300);
+  }
+}
+/* ===== BAD BUNNY WALK ===== */
+const badBunnyScene = document.getElementById('badBunnyScene');
+const bunnyImg = document.getElementById('badBunny');
+const walkAudio = document.getElementById('walk');
+
+const IMG_FRONT = 'https://lh3.googleusercontent.com/d/1FS0we3CVAmWpyQ_nm13SNrz5Ain5l3ik=w1000';
+const IMG_LEFT  = 'https://lh3.googleusercontent.com/d/14oRBlD-1G6HJsTZh3e1M24MdPhrmsPOA=w1000';
+const IMG_RIGHT = 'https://lh3.googleusercontent.com/d/1qo6HhM01B_dUp3hecsYLK7TjlIHC6b86=w1000';
+const IMG_MOUTH_CLOSED = 'https://lh3.googleusercontent.com/d/1IwUrLzY_uWOvBwnCmCfuwfd7sM0Pipwc=w1000';
+const IMG_MOUTH_OPEN   = 'https://lh3.googleusercontent.com/d/1a3qUV3DUliZgWCMorOvQ2vpjS9lCznV_=w1000';
+const IMG_HAPPY = 'https://lh3.googleusercontent.com/d/1x14hA62rb_7k1pK8mjVmEj3AingY8SUI=w1000';
+/* ⭐ MINI JUEGO ESTRELLAS */
+let specialFound = 0;
+const totalSpecial = 5;
+const starMessages = [
+  "Gracias por elegirme 💖",
+  "Eres mi Princesida de Disney 🌙",
+  "Contigo todo es más bonito ✨",
+  "Eres mi persona favorita 🌹",
+  "Loviu mucho mucho 💫"
+];
+
+function startBadBunnyWalk(){
+  let frame = 0;
+  let scale = 0.4;
+
+  bunnyImg.src = IMG_LEFT;
+  bunnyImg.style.transform = `translate(-50%,-50%) scale(${scale})`;
+
+  walkAudio.currentTime = 0;
+  walkAudio.play().catch(()=>{});
+
+  const walkInterval = setInterval(()=>{
+    frame++;
+    scale += 0.04;
+
+    bunnyImg.style.transform = `translate(-50%,-50%) scale(${scale})`;
+    bunnyImg.src = frame % 2 === 0 ? IMG_LEFT : IMG_RIGHT;
+
+    if(frame >= 14){
+      clearInterval(walkInterval);
+      bunnyImg.src = IMG_FRONT;
+      bunnyImg.style.transform = 'translate(-50%,-50%) scale(1)';
+    }
+  }, 500);
+
+  // ⏱️ EXACTO: a los 8s termina caminar
+  setTimeout(startPopSequence, 8000);
+}
+function startPopSequence(){
+  walkAudio.pause();
+
+  pop.currentTime = 0;
+  pop.play().catch(()=>{});
+
+  // espera un poco antes de animar la boca
+  setTimeout(startMouthSync, 150);
+
+  // ⏱️ pop dura ~11 segundos
+  setTimeout(()=>{
+    stopMouthSync();
+    showHappyFace();
+  }, 11000);
+}
+
+function showHappyFace(){
+  bunnyImg.src = IMG_HAPPY;
+  bunnyImg.style.transform = 'translate(-50%,-50%) scale(1)';
+
+  // mantiene 2 segundos la cara feliz
+  setTimeout(raiseCamera, 2000);
+}
+
+function raiseCamera(){
+
+  const skyDay = document.getElementById('skyDay');
+  const skyNight = document.getElementById('skyNight');
+
+  skyDay.style.backgroundPosition = 'center 20%';
+  skyNight.style.backgroundPosition = 'center 20%';
+
+  bunnyImg.style.transform =
+    'translate(-50%,-50%) scale(0.6)';
+  
+  setTimeout(()=>{
+    skyNight.style.opacity = '1';
+    bunnyImg.style.opacity = '0';
+    createStars();
+    showStarInstruction();
+  },2000);
+
+  setTimeout(()=>{
+    document.getElementById('finalMessage')
+      .classList.add('show');
+  },5000);
+
+}
+
+function goToSuccess(){
+  badBunnyScene.classList.remove('active');
+  success.classList.add('active');
+}
+/* ===== MOUTH SYNC (POP AUDIO) ===== */
+let mouthInterval = null;
+
+function startMouthSync(){
+  let open = false;
+
+  // empieza con boca cerrada
+  bunnyImg.src = IMG_MOUTH_CLOSED;
+
+  mouthInterval = setInterval(()=>{
+    open = !open;
+    bunnyImg.src = open ? IMG_MOUTH_OPEN : IMG_MOUTH_CLOSED;
+  }, 150); // cada medio segundo
+}
+
+function stopMouthSync(){
+  if(mouthInterval){
+    clearInterval(mouthInterval);
+    mouthInterval = null;
+  }
+
+  // deja boca cerrada al final
+  bunnyImg.src = IMG_MOUTH_CLOSED;
+}
+function createStars(){
+
+  const sky = document.getElementById('skyNight');
+
+  // ⭐ estrellas normales
+  for(let i=0;i<100;i++){
+    const star = document.createElement('div');
+    star.classList.add('star');
+    star.style.top = Math.random()*100 + '%';
+    star.style.left = Math.random()*100 + '%';
+    star.style.animationDelay = Math.random()*2 + 's';
+    sky.appendChild(star);
+  }
+
+  // 🌟 estrellas especiales
+  for(let i=0;i<totalSpecial;i++){
+    const special = document.createElement('div');
+    special.classList.add('special-star');
+    special.style.top = Math.random()*80 + '%';
+    special.style.left = Math.random()*90 + '%';
+
+    special.addEventListener('click', ()=>{
+      if(special.dataset.found) return;
+
+      special.dataset.found = true;
+      special.style.transform = "scale(2)";
+      showStarMessage(starMessages[specialFound]);
+      specialFound++;
+
+      if(specialFound === totalSpecial){
+        createFinalStar();
+      }
+    });
+
+    sky.appendChild(special);
+  }
+}
+
+function showStarMessage(text){
+
+  const sky = document.getElementById('skyNight');
+
+  const msg = document.createElement('div');
+  msg.classList.add('star-message');
+  msg.textContent = text;
+
+  sky.appendChild(msg);
+
+  setTimeout(()=> msg.classList.add('show'),100);
+
+  setTimeout(()=>{
+    msg.classList.remove('show');
+    setTimeout(()=> msg.remove(),1000);
+  },4000);
+}
+function createFinalStar(){
+
+  const sky = document.getElementById('skyNight');
+
+  const finalStar = document.createElement('div');
+  finalStar.classList.add('final-star');
+  finalStar.style.top = "30%";
+  finalStar.style.left = "50%";
+  finalStar.style.transform = "translateX(-50%)";
+
+  finalStar.addEventListener('click', ()=>{
+
+    finalStar.remove();
+
+    const buttons = document.getElementById('finalButtons');
+    buttons.style.display = 'block';
+    buttons.style.opacity = '1';
+    buttons.style.pointerEvents = 'auto';
+
+  });
+
+  sky.appendChild(finalStar);
+}
+
+function showStarInstruction(){
+
+  const sky = document.getElementById('skyNight');
+
+  const msg = document.createElement('div');
+  msg.classList.add('star-instruction');
+  msg.textContent = "Selecciona las 5 estrellas más brillantes";
+
+  sky.appendChild(msg);
+
+  setTimeout(()=> msg.classList.add('show'),100);
+
+  setTimeout(()=>{
+    msg.classList.remove('show');
+    setTimeout(()=> msg.remove(),1000);
+  },4000);
+}
+function startFinalScene(){
+
+  const sky = document.getElementById('skyNight');
+
+  // Oscurecer más el cielo
+  sky.classList.add('sky-final');
+  launchAlien();
+  
+  // Crear frase final
+  const phrase = document.createElement('div');
+  phrase.classList.add('final-phrase');
+  phrase.textContent = "Gracias por ser mi San Valentín💕";
+  sky.appendChild(phrase);
+
+  // Crear FIN
+  const fin = document.createElement('div');
+  fin.classList.add('final-end');
+  fin.textContent = "FIN";
+  sky.appendChild(fin);
+
+  // Meteoritos constantes
+  const meteorInterval = setInterval(()=>{
+    const meteor = document.createElement('div');
+    meteor.classList.add('meteor');
+    meteor.style.left = Math.random()*100 + '%';
+    meteor.style.top = '-100px';
+    meteor.style.animationDuration = (1 + Math.random()*1.5) + 's';
+    sky.appendChild(meteor);
+
+    setTimeout(()=> meteor.remove(),2000);
+  }, 250);
+
+  // Aparecer frase lentamente
+  setTimeout(()=>{
+    phrase.style.opacity = "1";
+  },1500);
+
+  // Aparecer FIN
+  setTimeout(()=>{
+    fin.style.opacity = "1";
+  },3500);
+  // 👽 Evento inesperado después del FIN
+setTimeout(()=>{
+  launchAlien();
+},5000);
+
+}
+
+function launchAlien(){
+
+  const alien = document.getElementById('alienShip');
+
+  alien.style.animation = "alienFly 3s linear forwards";
+
+  setTimeout(()=>{
+    alien.style.animation = "";
+    alien.style.left = "-300px";
+    alien.style.transform = "scale(0.4)";
+  },3000);
+
+}
+
+/* ===== PASO 5: BOTONES FINAL ===== */
+const continueBtn = document.getElementById('continueBtn');
+const stopBtn = document.getElementById('stopBtn');
+
+continueBtn.addEventListener('click', ()=>{
+
+  document.getElementById('finalButtons').style.display = 'none';
+
+  startFinalScene();
+
+});
+
+
+stopBtn.addEventListener('click', ()=>{
+  // Si quieres que se quede ahí y no haga nada más:
+  alert('Listo 💕. Fin aquí.');
+});
+
+</script>
+
+</body>
+</html>
