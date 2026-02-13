@@ -227,16 +227,25 @@ button{
 /* ⭐ Estrellas especiales */
 .special-star{
   position:absolute;
-  width:6px;
-  height:6px;
-  background:white;
-  border-radius:50%;
-  box-shadow:0 0 12px #fff, 0 0 20px #fff;
+  width:18px;
+  height:18px;
+  background:transparent;
   cursor:pointer;
   z-index:100;
   pointer-events:auto;
-  transition:transform .3s ease;
 }
+
+.special-star::before{
+  content:"";
+  position:absolute;
+  inset:6px;
+  background:white;
+  border-radius:50%;
+  box-shadow:
+    0 0 12px #fff,
+    0 0 20px #fff;
+}
+
 
 .special-star:hover{
   transform:scale(1.6);
@@ -711,24 +720,23 @@ function createStars(){
     special.style.top = Math.random()*80 + '%';
     special.style.left = Math.random()*90 + '%';
 
-    special.addEventListener('touchstart', (e)=>{
+special.addEventListener('pointerdown', (e)=>{
+  e.preventDefault();
   e.stopPropagation();
-      if(special.dataset.found) return;
 
-      special.dataset.found = true;
-      special.style.transform = "scale(2)";
-      showStarMessage(starMessages[specialFound]);
-      specialFound++;
+  if(special.dataset.found) return;
 
-if(specialFound === totalSpecial){
+  special.dataset.found = true;
+  special.style.transform = "scale(2)";
+  showStarMessage(starMessages[specialFound]);
+  specialFound++;
 
-  // Esperar 1 segundo antes de mostrar la estrella final
-  setTimeout(()=>{
-    createFinalStar();
-  },1000);
-
-}
-    });
+  if(specialFound === totalSpecial){
+    setTimeout(()=>{
+      createFinalStar();
+    },1000);
+  }
+});
 
     sky.appendChild(special);
   }
@@ -763,7 +771,7 @@ function createFinalStar(){
   const finalStar = document.createElement('div');
   finalStar.classList.add('final-star');
 
-  finalStar.addEventListener('click', ()=>{
+finalStar.addEventListener('pointerdown', ()=>{
     finalStar.remove();
 
     const buttons = document.getElementById('finalButtons');
