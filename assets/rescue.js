@@ -113,6 +113,7 @@
     ready = false;
     el('sailing-start').disabled = true;
     el('asset-retry').hidden = true;
+    el('asset-status').classList.add('sr-only');
     el('asset-status').textContent = 'Preparando los retratos originales…';
     const ids = [...family.map(p => p.id),'LUCERO_LA_SALVADORA','ANTONIO_EL_MALVADO'];
     const results = await Promise.allSettled(ids.map(async id => {
@@ -124,6 +125,7 @@
     el('sailing-start').disabled = !ready;
     el('sailing-start').textContent = ready ? 'Izar las velas · ¡Al rescate! →' : 'Faltan algunos retratos';
     el('asset-status').textContent = ready ? 'Toda la familia está lista. ¡Tú puedes, capitana!' : 'No se cargaron todos los retratos. Revisa tu conexión y vuelve a intentarlo.';
+    el('asset-status').classList.toggle('sr-only',ready);
     el('asset-retry').hidden = ready;
   }
   el('asset-retry').addEventListener('click',loadImages);
@@ -234,16 +236,17 @@
     clearTimeout(reactionTimer);
     el('antonio-reaction').hidden=true;
     el('antonio-reaction').removeAttribute('data-milestone');
-    el('reaction-idle').hidden=false;
+
   }
   function reactToRescue(count){
     if(!reactions[count])return;
     clearTimeout(reactionTimer);
-    el('reaction-idle').hidden=true;
+
     el('reaction-text').textContent=reactions[count];
     el('antonio-reaction').dataset.milestone=String(count);
+    el('antonio-reaction').dataset.side=count===8?'left':'right';
     el('antonio-reaction').hidden=false;
-    reactionTimer=setTimeout(clearReaction,4200);
+    reactionTimer=setTimeout(clearReaction,2800);
   }
   function caught(person) {
     const count=game.rescued.length;
@@ -261,6 +264,7 @@
     if(event.type==='catch'||event.type==='win')caught(event.person);
     if(event.type==='rock'){tone([196,247]);el('sailing-state').textContent='¡Cuidado con las rocas!';}
     if(event.type==='miss') {
+      globalThis.ValentGameMusic?.play(true);
       clearReaction();
       direction=0;held.clear();
       el('result-label').textContent='Volvemos a intentarlo';
@@ -271,10 +275,11 @@
       el('result-title').focus({preventScroll:true});
     }
     if(event.type==='win') {
+      globalThis.ValentGameMusic?.play(true);
       clearReaction();
       play.hidden=true;story.hidden=false;story.classList.add('ending');finale=true;chapter=0;say(0);
       el('sailing-start').hidden=true;
-      document.querySelector('.rescue-rules').hidden=true;el('asset-status').hidden=true;
+      el('asset-status').hidden=true;
       document.querySelector('.cast-seal span').textContent='Familia a salvo';
       el('sailing-reward').hidden=false;tone();burst();
       story.scrollIntoView({behavior:motion.matches?'auto':'smooth',block:'start'});
@@ -293,6 +298,7 @@
   }
   function start() {
     if(!ready)return;
+    globalThis.ValentGameMusic?.play(true);
     clearReaction();
     cancelAnimationFrame(frame);game=new FamilyRescueEngine(family);paused=false;held.clear();direction=0;clock=0;sparkles=[];
     story.hidden=true;play.hidden=false;overlay.hidden=true;el('sailing-reward').hidden=true;
@@ -308,6 +314,7 @@
   function pause(value) {
     if(!game||game.state!=='playing'||paused===value)return;
     paused=value;held.clear();direction=0;cancelAnimationFrame(frame);
+    if(value)globalThis.ValentGameMusic?.pause();else globalThis.ValentGameMusic?.play();
     overlay.hidden=!value;el('rescue-continue').hidden=false;el('rescue-retry').hidden=true;
     el('result-label').textContent='Un respiro en el mar';el('result-title').textContent='Tu familia te espera.';
     el('result-description').textContent='La partida está pausada. Continúa cuando estés lista.';

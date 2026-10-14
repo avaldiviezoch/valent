@@ -16,6 +16,7 @@ const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
    };
   });
   await page.goto(base+'/islas/encuentro.html');
+  await page.evaluate(()=>{window.__musicCalls=[];const original=ValentGameMusic.play;ValentGameMusic.play=function(restart=false){window.__musicCalls.push(restart);return original.call(this,restart);};});
   await page.locator('#dialogue-next').click();assert.match(await page.locator('#speaker').textContent(),/Lucero/);
   await page.locator('#dialogue-next').click();await page.locator('#sailing-start').click();
   assert.equal(await page.locator('#family-roster li').count(),18);
@@ -40,11 +41,12 @@ const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
     if(mobile)await page.touchscreen.tap(box.x+head.x,box.y+box.height*.7);
    }
    const milestone=await page.locator('#antonio-reaction').getAttribute('data-milestone');
-   if(milestone){reactions.add(Number(milestone));assert(await page.locator('#antonio-reaction').isVisible());}
+   if(milestone){reactions.add(Number(milestone));assert(await page.locator('#antonio-reaction').isVisible());assert.equal(await page.locator('#antonio-reaction').evaluate(e=>getComputedStyle(e).position),'fixed');const current=await page.locator('#sailing-canvas').boundingBox();assert.equal(current.y,box.y);assert.equal(current.height,box.height);}
    if(await page.locator('#sailing-reward').isVisible()){won=true;break;}
    assert.equal(await page.locator('#rescue-retry').isVisible(),false,'autopilot can reach each portrait');
   }
   assert.deepEqual([...reactions].sort((a,b)=>a-b),[4,8,12]);
+  assert.equal(await page.evaluate(()=>window.__musicCalls.filter(Boolean).length),4,'music restarts on start, loss, retry and win');
   assert(won,'all 18 family members can be saved');assert.equal(await page.locator('#family-roster .rescued').count(),18);
   assert.match(await page.locator('#sailing-reward').textContent(),/Tu bebito, Antonio/);
   assert(await page.locator('#rescue-story').isVisible());await page.locator('#dialogue-next').click();assert.match(await page.locator('#speaker').textContent(),/Lucero/);

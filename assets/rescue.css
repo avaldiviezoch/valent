@@ -28,3 +28,14 @@
 @media(max-width:350px){.rescue-story{grid-template-columns:78px minmax(0,1fr);gap:12px 10px}.rescue-story[data-speaker=lucero]{grid-template-columns:minmax(0,1fr) 78px}.rescue-story .story-dialogue{padding-inline:11px}.rescue-story #dialogue-line{font-size:.86rem}}
 
 .rescue-story #dialogue-line{display:grid}.rescue-story #dialogue-line:after{content:attr(data-full-text);visibility:hidden;pointer-events:none;grid-area:1/1}.rescue-story #dialogue-copy{grid-area:1/1}
+/* Keep the original play area; transient sprites never consume layout space. */
+.rescue-story{grid-template-columns:225px minmax(0,1fr);grid-template-areas:'portrait dialogue' 'portrait actions' 'status status' 'retry retry';gap:12px 8px;background:none;border:0;box-shadow:none;padding:16px 8px}
+.rescue-story[data-speaker=lucero]{grid-template-columns:minmax(0,1fr) 225px;grid-template-areas:'dialogue portrait' 'actions portrait' 'status status' 'retry retry'}
+.rescue-story .cast{min-height:270px}.rescue-story .story-dialogue{margin-top:0;min-height:0;padding:28px 20px 18px}.rescue-story #dialogue-line{min-height:0}.rescue-story .story-actions{align-self:start}.rescue-story #asset-status.sr-only{position:absolute}
+.sprite-reaction{position:fixed;z-index:12;right:16px;left:auto;top:20vh;display:flex;align-items:center;gap:5px;width:min(280px,calc(100vw - 32px));max-width:none;margin:0;padding:0;background:none;border:0;box-shadow:none;pointer-events:none;animation:reaction-flash 2.8s ease both;--entry:12px;filter:drop-shadow(0 3px 6px #00111e)}
+.sprite-reaction[data-side=left]{left:16px;right:auto;--entry:-12px}.sprite-reaction img{width:78px;height:100px;object-fit:contain;flex-shrink:0}.sprite-reaction .eyebrow{display:none}.sprite-reaction #reaction-text{margin:0;color:#fff3d3;font-size:.95rem;font-weight:600;line-height:1.45;text-shadow:0 2px 3px #00131f,1px 0 2px #00131f,-1px 0 2px #00131f}
+.rescue-sea{height:480px}
+@keyframes reaction-flash{0%{opacity:0;transform:translateX(var(--entry))}12%,83%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(var(--entry))}}
+@media(max-width:600px){.rescue-story{grid-template-columns:120px minmax(0,1fr);gap:12px 5px;padding:12px 0}.rescue-story[data-speaker=lucero]{grid-template-columns:minmax(0,1fr) 120px}.rescue-story .cast{min-height:160px}.rescue-story .story-dialogue{padding:34px 12px 14px;min-height:0}.rescue-story #dialogue-line{min-height:0;font-size:.92rem}.rescue-sea{height:clamp(320px,53svh,470px)}.sprite-reaction{width:230px;top:18vh}.sprite-reaction img{width:65px;height:88px}.sprite-reaction #reaction-text{font-size:.82rem}}
+@media(max-width:350px){.rescue-story{grid-template-columns:96px minmax(0,1fr)}.rescue-story[data-speaker=lucero]{grid-template-columns:minmax(0,1fr) 96px}.rescue-story #dialogue-line{font-size:.85rem}}
+@media(prefers-reduced-motion:reduce){.sprite-reaction{animation:none!important}}
