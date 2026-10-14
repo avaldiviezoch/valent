@@ -1,36 +1,32 @@
 # Nuestra aventura
 
-Una experiencia romántica estática, compatible con GitHub Pages. Abre `index.html` desde un servidor web; no requiere compilación ni dependencias JavaScript.
+Una aventura romántica estática para GitHub Pages, sin compilación ni dependencias JavaScript en producción.
 
-## El recorrido
+## La etapa actual
 
-1. **El encuentro:** enciende la linterna para revelar una carta.
-2. **La ruta:** conecta letras vecinas, incluidas las diagonales. El tablero gira en cada visita; se pueden compartir letras entre palabras.
-3. **Los recuerdos:** abre las cuatro fotos. El álbum permite teclado y deslizamiento táctil.
-4. **La travesía:** conduce el velero y recoge cinco luces. Puedes usar arrastre, flechas o botones. Las rocas desvían el rumbo sin quitar vidas ni reiniciar el recorrido.
-5. **La constelación:** observa y repite tres secuencias de estrellas. Puedes volver a ver cada secuencia.
-6. **El tesoro:** se abre al guardar los cinco capítulos.
+Solo está disponible **Izar las velas**, en la primera isla (`islas/encuentro.html`). El juego de navegación conserva su mecánica existente; al completarlo aparece un mensaje de tu bebito y se guarda el recuerdo. La antigua linterna se trasladó a `islas/aventuras.html`, en la cuarta isla, y queda bloqueada para personalizarla después.
 
-El avance se guarda en el navegador. Los efectos de sonido se activan por defecto tras la primera interacción; no hay botón de música. La pista musical de fondo se incorporará cuando se seleccione el recurso. Se conservan las claves de progreso de la versión anterior. El tesoro es una sorpresa personal, no un sistema de seguridad.
+Las otras cinco islas se ven en blanco y negro y no permiten jugar, tampoco entrando por sus enlaces directos. El progreso de las versiones de demostración se conserva en el navegador, pero no se usa para dar por completados ni desbloquear los nuevos juegos personales.
 
-## Diseño y accesibilidad
+El mapa mantiene las seis islas visibles en un archipiélago irregular. El menú de hamburguesa reúne capítulos, disponibilidad y progreso; ya no hay una barra inferior permanente. La carta inicial aparece una vez por sesión y se puede volver a abrir desde el menú.
 
-Mar y seis paisajes originales en WebP: isla tropical, bahía en media luna, islas gemelas, volcán, acantilados con cascada y atolón de coral. Cada destino utiliza su propio recurso transparente con una silueta y un terreno distintos. Luz ambiental, estela del barco y partículas al descubrir recuerdos. Mapa visible desde el primer momento, con título centrado y sin botones de zoom ni música. El encuadre automático reserva espacio para el encabezado y el pie, y muestra siempre las seis islas y sus nombres: dos columnas en espacios verticales, tres en horizontales. Se mantienen el arrastre y el pellizco; el doble toque sobre el mar vuelve a encuadrar. El fondo combina dos capas de agua que se desplazan suavemente para simular corrientes y oleaje. Controles con nombres accesibles, navegación por teclado, foco de diálogos y compatibilidad con `prefers-reduced-motion`. En el juego del barco el movimiento es parte de la mecánica; con movimiento reducido se desactivan la estela y las ondas decorativas.
+## Nuestro mesario: cada día 14
 
-Las cuatro fotografías mantienen sus enlaces originales al repositorio Wedding. Las tipografías usan Google Fonts con alternativas locales. El resto de la experiencia está incluido en este repositorio. `semivalentin.html` y los audios anteriores se conservan.
+La carta explica que cada día 14 del mes llegará un juego preparado especialmente para ella, con un mensaje de amor de su bebito al completarlo.
 
-## Verificación
+La configuración `chapters` en `assets/experience.js` define título, ruta, fecha prevista y `ready`. Una isla solo se habilita cuando está preparada (`ready: true`) y ha llegado su fecha en **America/Lima**. Por ahora únicamente el primer juego está preparado. Los otros no se abrirán automáticamente con los juegos antiguos sin personalizar, aunque pase la fecha: primero hay que preparar y activar cada capítulo. La planificación inicial comienza el 14 de octubre de 2026 y continúa el día 14 de los siguientes meses.
 
-Probado con Chromium mediante Playwright: recorrido completo hasta el tesoro, persistencia, 12 tableros de letras aleatorios, álbum con las cuatro imágenes cargadas, las tres rondas de memoria y recogida de cinco luces en el velero. Las siete páginas se revisaron a 320, 390, 768 y 1440 píxeles de ancho, sin desbordes horizontales ni errores JavaScript. También se verificaron selección por arrastre, rechazo de saltos entre letras, controles táctiles, pellizco, teclado y movimiento reducido. Las comprobaciones de navegador no sustituyen pruebas en un iPhone físico.
+## Agua en movimiento
 
-## Recursos originales
+`assets/ocean.js` deforma en tiempo real la textura del mar con ondas y reflejos mediante WebGL. No mueve las islas ni las letras. Limita la resolución y la frecuencia de dibujo, y pausa el renderizado con la pestaña oculta. Si WebGL no está disponible, utiliza las corrientes animadas de CSS como alternativa. Con movimiento reducido se conserva el fondo estático.
 
-Los fondos se generaron con la herramienta integrada ImageGen y se optimizaron a WebP. Los prompts están en [assets/ART-DIRECTION.md](assets/ART-DIRECTION.md).
+Los efectos de sonido están activados por defecto tras la primera interacción. La música de fondo se incorporará cuando se elija la pista.
 
+## Recursos
 
-### Repetir las pruebas
+El mar y los seis paisajes están incluidos en WebP. Sus prompts originales de ImageGen están en [assets/ART-DIRECTION.md](assets/ART-DIRECTION.md). Las cuatro fotografías mantienen sus enlaces originales al repositorio Wedding. Se conservan los archivos y audios de las versiones anteriores. Google Fonts tiene fuentes locales de respaldo.
 
-Estas dependencias son solo de desarrollo; el sitio publicado sigue siendo estático.
+## Pruebas
 
 ```sh
 npm install
@@ -38,8 +34,13 @@ npx playwright install chromium
 python -m http.server 8765 --bind 127.0.0.1
 ```
 
-Con el servidor abierto, ejecuta `npm test` en otra terminal. Las pruebas usan un navegador limpio y no modifican la información del navegador personal.
+En otra terminal:
 
-La revisión de paisajes tiene una prueba específica: `npm run test:islands`. Comprueba los seis recursos distintos, su carga, el mapa a cuatro anchos de pantalla y la navegación a los seis destinos.
+```sh
+npm test
+npm run test:islands
+npm run test:responsive
+npm run test:water
+```
 
-La prueba `npm run test:responsive` verifica los seis destinos y sus nombres completos en nueve tamaños y orientaciones (desde 320 × 568 hasta 1440 × 900), ausencia de solapamientos, controles retirados, movimiento del fondo, movimiento reducido y desbloqueo de sonido con la primera interacción.
+Se verifican la carta del mesario, el menú y su foco, las cinco islas bloqueadas, los enlaces directos, la disponibilidad por fecha y preparación, el aislamiento del progreso anterior y el primer juego completo con su mensaje y guardado. Las pruebas de mapa cubren nueve tamaños y orientaciones de 320×568 a 1440×900 y comprueban los seis paisajes y sus nombres. Se comprueban los píxeles del agua entre fotogramas, movimiento reducido, cambios de tamaño y alternativa sin WebGL. Las pruebas de Chromium no sustituyen una prueba en un iPhone físico.

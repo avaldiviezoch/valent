@@ -1,0 +1,35 @@
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
+const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
+(async()=>{
+ const browser=await chromium.launch({headless:true});
+ const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(base);
+ assert(await page.locator('#voyage-intro').evaluate(e=>e.open));
+ assert.match(await page.locator('#voyage-intro-description').textContent(),/14 del mes/);
+ assert.match(await page.locator('#voyage-intro').textContent(),/mensaje de amor de tu bebito/);
+ await page.locator('#voyage-start').click();
+ assert.equal(await page.locator('.map-footer,#next,#progress-count').count(),0);
+ assert.equal(await page.locator('.island:not(.locked)').count(),1);
+ assert.equal(await page.locator('.island.locked').count(),5);
+ for(let i=1;i<6;i++)assert.match(await page.locator('.island').nth(i).locator('.terrain').evaluate(e=>getComputedStyle(e).filter),/grayscale\(1\)/);
+ assert(!/grayscale/.test(await page.locator('.island').first().locator('.terrain').evaluate(e=>getComputedStyle(e).filter)));
+ await page.locator('#menu-toggle').click();assert(await page.locator('#voyage-menu').evaluate(e=>e.open));
+ assert.equal(await page.locator('.chapter-links button:enabled').count(),1);
+ assert.equal(await page.locator('.chapter-links button:disabled').count(),5);
+ await page.keyboard.press('Escape');await page.waitForFunction(()=>document.getElementById('menu-toggle').getAttribute('aria-expanded')==='false');
+ await page.locator('.island').nth(1).click({force:true});assert.match(await page.locator('#toast').textContent(),/mesario/);assert(!page.url().includes('ruta-corazon'));
+ await page.evaluate(()=>['lucero-isla-encuentro-v1','lucero-isla-ruta-v1','lucero-isla-recuerdos-v1','lucero-isla-aventuras-v1','lucero-isla-suenos-v1'].forEach(k=>localStorage.setItem(k,'complete')));
+ await page.reload();assert.equal(await page.locator('.island:not(.locked)').count(),1);assert.equal(await page.locator('.island.complete').count(),0);
+ const dates=await page.evaluate(()=>{const unavailableInFuture=chapterAvailable(1,new Date('2027-01-14T12:00:00Z'));chapters[1].ready=true;try{return {unavailableInFuture,before:chapterAvailable(1,new Date('2026-11-14T04:59:59Z')),onMesario:chapterAvailable(1,new Date('2026-11-14T05:00:00Z'))};}finally{chapters[1].ready=false;}});
+ assert.deepEqual(dates,{unavailableInFuture:false,before:false,onMesario:true});
+ assert.equal(await page.locator('#voyage-intro').evaluate(e=>e.open),false);
+ for(const file of ['ruta-corazon','recuerdos','aventuras','constelacion','tesoro']){await page.goto(base+'/islas/'+file+'.html');await page.waitForURL(/index.html/);assert.equal(await page.locator('.island:not(.locked)').count(),1);}
+ await page.locator('#menu-toggle').click();await page.locator('#show-intro').click();assert(await page.locator('#voyage-intro').evaluate(e=>e.open));await page.locator('#voyage-start').click();
+ await page.locator('.island').first().click();await page.waitForURL(/encuentro.html/);assert(await page.locator('#sailing-start').isVisible());assert.equal(await page.locator('#lantern').count(),0);
+ assert.match(await page.locator('#sailing-reward').textContent(),/Tu bebito/);
+ await page.locator('#sailing-start').click();assert.equal(await page.locator('#sailing-overlay').isVisible(),false);
+ assert.deepEqual(errors,[]);console.log('PASS mesario notice, hamburger menu, five grayscale locks, direct URL guards, old progress isolation and sailing as game 1');
+ await browser.close();
+})().catch(e=>{console.error(e);process.exit(1)});

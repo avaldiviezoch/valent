@@ -6,7 +6,23 @@ const storage = {
   get(key, fallback = null) { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } },
   set(key, value) { try { localStorage.setItem(key, value); } catch { /* The adventure still works without persistence. */ } }
 };
-const keys = ['lucero-isla-encuentro-v1','lucero-isla-ruta-v1','lucero-isla-recuerdos-v1','lucero-isla-aventuras-v1','lucero-isla-suenos-v1'];
+const keys = ['valent-izar-velas-v1','valent-ruta-personal-v1','valent-recuerdos-personal-v1','valent-luz-encuentro-v1','valent-cielo-personal-v1'];
+// A chapter is released only after it has been prepared AND its mesario has arrived.
+const chapters=[
+ {title:'Izar las velas',type:'Nuestro primer juego',file:'encuentro',ready:true,releaseOn:'2026-10-14'},
+ {title:'La ruta del corazón',type:'Un pequeño desafío',file:'ruta-corazon',ready:false,releaseOn:'2026-11-14'},
+ {title:'Nuestros recuerdos',type:'El álbum',file:'recuerdos',ready:false,releaseOn:'2026-12-14'},
+ {title:'La luz de encontrarnos',type:'El encuentro',file:'aventuras',ready:false,releaseOn:'2027-01-14'},
+ {title:'Un cielo para dos',type:'La constelación',file:'constelacion',ready:false,releaseOn:'2027-02-14'},
+ {title:'Nuestro tesoro',type:'El último destino',file:'tesoro',ready:false,releaseOn:'2027-03-14'}
+];
+function chapterAvailable(i,now=new Date()){
+ const chapter=chapters[i];if(!chapter?.ready)return false;
+ if(i===0)return true;
+ const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
+ const part=name=>parts.find(x=>x.type===name).value;
+ return `${part('year')}-${part('month')}-${part('day')}`>=chapter.releaseOn;
+}
 // Audio effects are enabled by default; browsers unlock audio on the first interaction.
 const soundOn = true;
 let audio;
@@ -21,12 +37,12 @@ function tone(notes = [523,659,784]) {
 function toast(message) { let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');document.body.append(t);}t.textContent=message;t.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove('show'),3200); }
 function burst(x=innerWidth/2,y=innerHeight/2,n=26) { if(reduced)return;let layer=$('fx');if(!layer){layer=document.createElement('div');layer.id='fx';layer.className='fx';layer.setAttribute('aria-hidden','true');document.body.append(layer);}for(let i=0;i<n;i++){const p=document.createElement('i'),a=Math.random()*Math.PI*2,d=40+Math.random()*150;p.style.cssText=`left:${x}px;top:${y}px;--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d-35}px;animation-duration:${.8+Math.random()}s;background:${i%3?'#f4dca5':'#b7dec8'}`;layer.append(p);setTimeout(()=>p.remove(),2100);} }
 function reward(id) { const el=$(id);el.hidden=false;tone();burst();el.scrollIntoView({behavior:reduced?'instant':'smooth',block:'center'});el.querySelector('h2')?.focus({preventScroll:true}); }
-function saveStop(i) { storage.set(keys[i],'complete');location.href='../index.html?isla='+(i+1); }
+function saveStop(i) { if(!chapterAvailable(i)){toast('Esta isla sigue en preparación para un próximo mesario.');return;}storage.set(keys[i],'complete');location.href='../index.html?isla='+(i+1); }
 document.querySelectorAll('[data-finish]').forEach(b=>b.addEventListener('click',()=>saveStop(Number(b.dataset.finish))));
 const boatSVG = `<svg viewBox="0 0 70 90" aria-hidden="true"><path d="M33 10V65" stroke="#735842" stroke-width="3"/><path d="M29 12L7 55H29Z" fill="#e9dfc5"/><path d="M37 20L61 55H37Z" fill="#faf0d5"/><path d="M6 65Q34 73 64 62L54 78Q34 89 16 78Z" fill="#533e2e" stroke="#d6b97f" stroke-width="2"/><path d="M17 69L53 67" stroke="#c1a16c" stroke-width="3"/></svg>`;
 
 function setupMap() {
- const stops=[{x:260,y:640,title:'Donde todo comenzó',type:'El encuentro',file:'encuentro'},{x:460,y:410,title:'La ruta del corazón',type:'Un pequeño desafío',file:'ruta-corazon'},{x:720,y:640,title:'Nuestros recuerdos',type:'El álbum',file:'recuerdos'},{x:940,y:370,title:'A mar abierto',type:'La travesía',file:'aventuras'},{x:1150,y:570,title:'Un cielo para dos',type:'La constelación',file:'constelacion'},{x:1190,y:170,title:'Nuestro tesoro',type:'El último destino',file:'tesoro'}];
+ const stops=chapters.map(chapter=>({...chapter,x:0,y:0}));
  const atlas=$('atlas'),world=$('world'),islands=$('islands'),ship=$('ship');ship.innerHTML=boatSVG;
  let scale=1,tx=0,ty=0,travel=false,visited=[];
  stops.forEach((s,i)=>{
@@ -55,13 +71,13 @@ function setupMap() {
  function render(){world.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`;}
  function fit(){
   const w=atlas.clientWidth,h=atlas.clientHeight,portrait=h/w>.8;
-  const positions=portrait?[[185,145],[575,145],[185,465],[575,465],[185,785],[575,785]]:[[230,155],[700,155],[1170,155],[1170,515],[700,515],[230,515]];
+  const positions=portrait?[[190,135],[570,295],[220,465],[560,640],[170,815],[575,995]]:[[190,260],[630,145],[1120,300],[1220,640],[700,560],[230,690]];
   document.body.dataset.layout=portrait?'portrait':'landscape';
   stops.forEach((s,i)=>{[s.x,s.y]=positions[i];islands.children[i].setAttribute('transform',`translate(${s.x} ${s.y})`);});
-  const ww=portrait?760:1400,wh=portrait?970:705;
+  const ww=portrait?760:1460,wh=portrait?1160:875;
   world.style.width=ww+'px';world.style.height=wh+'px';
   world.querySelector(':scope > svg').setAttribute('viewBox',`0 0 ${ww} ${wh}`);
-  const path=portrait?'M185 145Q380 65 575 145Q690 300 185 465Q380 390 575 465Q690 620 185 785Q380 710 575 785':'M230 155Q465 55 700 155T1170 155Q1320 335 1170 515Q935 615 700 515T230 515';
+  const path=portrait?'M190 135Q455 110 570 295Q510 430 220 465Q350 545 560 640Q470 800 170 815Q340 1030 575 995':'M190 260Q350 70 630 145Q950 100 1120 300Q1350 440 1220 640Q960 740 700 560Q450 540 230 690';
   world.querySelectorAll('.route,.route-glow').forEach(p=>p.setAttribute('d',path));
   // Fit the entire atlas, including island labels, within its actual available space.
   scale=Math.max(.01,Math.min((w-20)/ww,(h-8)/wh));
@@ -77,9 +93,48 @@ function setupMap() {
  atlas.addEventListener('pointerdown',e=>{if(e.button!==0)return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});start={x:e.clientX,y:e.clientY};suppressClick=false;});
  atlas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;const previous=pointers.get(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1){if(Math.hypot(e.clientX-start.x,e.clientY-start.y)>7)suppressClick=true;if(suppressClick){tx+=e.clientX-previous.x;ty+=e.clientY-previous.y;render();}}else{const p=[...pointers.values()],d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(lastDistance)zoom(d/lastDistance,(p[0].x+p[1].x)/2-atlas.getBoundingClientRect().left,(p[0].y+p[1].y)/2-atlas.getBoundingClientRect().top);lastDistance=d;suppressClick=true;}});
  function end(e){pointers.delete(e.pointerId);lastDistance=0;setTimeout(()=>{if(!pointers.size)suppressClick=false},100);}window.addEventListener('pointerup',end);window.addEventListener('pointercancel',end);
- function update(){visited=keys.map(k=>storage.get(k)==='complete');const n=visited.filter(Boolean).length;[...islands.children].forEach((g,i)=>{g.classList.toggle('complete',!!visited[i]);g.classList.toggle('locked',i===5&&n<5);g.querySelector('.check').textContent=i===5?(n===5?'✦':'◇'):(visited[i]?'✓':i+1);g.setAttribute('aria-label',`${stops[i].title}, ${i===5?(n===5?'disponible':'completa las cinco islas'):visited[i]?'completada':'pendiente'}`);});$('progress-count').textContent=`${n} de 5 recuerdos descubiertos`;$('progress-value').style.strokeDashoffset=113*(1-n/5);$('next').textContent=n===5?'Descubrir el tesoro →':'Continuar el viaje →';const latest=Math.max(0,visited.lastIndexOf(true));ship.style.left=stops[latest].x+'px';ship.style.top=(stops[latest].y+58)+'px';}
- function open(i){if(travel)return;if(i===5&&visited.filter(Boolean).length<5){toast('El tesoro se abre al completar las cinco islas.');tone([294,349]);return;}travel=true;tone([392,523,659]);const s=stops[i];ship.classList.add('sailing');ship.style.transition=reduced?'none':'left 1.6s ease-in-out,top 1.6s ease-in-out';ship.style.left=s.x+'px';ship.style.top=(s.y+50)+'px';toast('Navegando hacia '+s.title+'…');setTimeout(()=>location.href='islas/'+s.file+'.html',reduced?40:1700);}
- $('next').onclick=()=>{const i=visited.indexOf(false);open(i<0?5:i)};
+ const menu=$('voyage-menu'),intro=$('voyage-intro'),toggle=$('menu-toggle');
+ stops.forEach((stop,i)=>{
+  const button=document.createElement('button');button.type='button';button.dataset.chapter=i;
+  button.innerHTML=`<span class="chapter-link-number">${String(i+1).padStart(2,'0')}</span><span><strong>${stop.title}</strong><small></small></span><span class="chapter-link-symbol" aria-hidden="true"></span>`;
+  button.onclick=()=>{if(!chapterAvailable(i))return;menu.close();open(i);};
+  $('chapter-links').append(button);
+ });
+ function update(){
+  visited=keys.map((key,i)=>chapterAvailable(i)&&storage.get(key)==='complete');
+  [...islands.children].forEach((g,i)=>{
+   const available=chapterAvailable(i),complete=!!visited[i];
+   g.classList.toggle('complete',complete);g.classList.toggle('locked',!available);
+   g.setAttribute('aria-disabled',String(!available));
+   g.querySelector('.check').textContent=complete?'✓':i+1;
+   g.setAttribute('aria-label',`${i+1}. ${stops[i].title}, ${available?(complete?'completada':'disponible'):'próximamente, otro mesario'}`);
+   const row=$('chapter-links').children[i];row.disabled=!available;
+   row.querySelector('small').textContent=available?(complete?'Completado · puedes volver a jugar':'Disponible para ti'):'En preparación · un próximo día 14';
+   row.querySelector('.chapter-link-symbol').textContent=available?'→':'◇';
+  });
+  $('journey-progress').textContent=visited[0]?'Izar las velas · Recuerdo guardado ♡':'1 juego disponible · 5 sorpresas por descubrir';
+  const current=Math.max(0,visited.lastIndexOf(true));
+  ship.style.left=stops[current].x+'px';ship.style.top=(stops[current].y+58)+'px';
+ }
+ function open(i){
+  if(travel)return;
+  if(!chapterAvailable(i)){toast('Tu bebito está preparando esta sorpresa para un próximo mesario, un día 14.');tone([294,349]);return;}
+  travel=true;tone([392,523,659]);const stop=stops[i];ship.classList.add('sailing');
+  ship.style.transition=reduced?'none':'left 1.6s ease-in-out,top 1.6s ease-in-out';
+  ship.style.left=stop.x+'px';ship.style.top=(stop.y+50)+'px';toast('Navegando hacia '+stop.title+'…');
+  setTimeout(()=>location.href='islas/'+stop.file+'.html',reduced?40:1700);
+ }
+ toggle.onclick=()=>{toggle.setAttribute('aria-expanded','true');menu.showModal();};
+ $('menu-close').onclick=()=>menu.close();
+ menu.addEventListener('close',()=>{toggle.setAttribute('aria-expanded','false');toggle.focus();});
+ menu.addEventListener('click',e=>{if(e.target===menu){const r=menu.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)menu.close();}});
+ $('show-intro').onclick=()=>{menu.close();intro.showModal();};
+ const rememberIntro=()=>{try{sessionStorage.setItem('valent-mesario-intro-v1','seen');}catch{}};
+ $('voyage-start').onclick=()=>intro.close();
+ intro.addEventListener('close',()=>{rememberIntro();toggle.focus();});
+ let hasSeenIntro=false;try{hasSeenIntro=sessionStorage.getItem('valent-mesario-intro-v1')==='seen';}catch{}
+ if(!hasSeenIntro&&!location.search.includes('isla=')&&!location.search.includes('pendiente='))intro.showModal();
+ if(location.search.includes('pendiente=')){history.replaceState(null,'',location.pathname);toast('Esta sorpresa se abrirá en un próximo mesario. Hoy nos espera Izar las velas.');}
  new ResizeObserver(fit).observe(atlas);
  window.addEventListener('resize',fit);window.addEventListener('pageshow',()=>{travel=false;ship.classList.remove('sailing');update()});window.addEventListener('storage',update);fit();update();
  if(location.search.includes('isla')){history.replaceState(null,'',location.pathname);setTimeout(()=>{toast('Un nuevo recuerdo en nuestra historia.');burst(innerWidth/2,innerHeight-70)},400);}
@@ -128,4 +183,9 @@ function setupSailing(){
 
 function setupGallery(){const photos=[...document.querySelectorAll('.photo')],viewer=$('viewer'),seen=new Set();let current=0,focus;function render(){const p=photos[current];$('viewer-image').src=p.querySelector('img').src;$('viewer-image').alt=p.querySelector('img').alt;$('viewer-caption').textContent=p.querySelector('span').textContent;$('viewer-count').textContent=`${current+1} / ${photos.length}`;seen.add(current);$('album-status').textContent=`${seen.size} de 4 recuerdos abiertos`;$('album-finish').disabled=seen.size<4;}function close(){viewer.hidden=true;document.body.style.overflow='';$('album-main').inert=false;document.querySelector('.nav').inert=false;focus?.focus();}function shift(d){current=(current+d+photos.length)%photos.length;render();}photos.forEach((p,i)=>p.onclick=()=>{focus=p;current=i;render();viewer.hidden=false;$('album-main').inert=true;document.querySelector('.nav').inert=true;document.body.style.overflow='hidden';$('viewer-close').focus();});$('viewer-close').onclick=close;$('viewer-prev').onclick=()=>shift(-1);$('viewer-next').onclick=()=>shift(1);viewer.onclick=e=>{if(e.target===viewer)close()};document.addEventListener('keydown',e=>{if(viewer.hidden)return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')shift(-1);if(e.key==='ArrowRight')shift(1);if(e.key==='Tab'){const buttons=[...viewer.querySelectorAll('button')],i=buttons.indexOf(document.activeElement);if(e.shiftKey&&i===0){e.preventDefault();buttons.at(-1).focus()}else if(!e.shiftKey&&i===buttons.length-1){e.preventDefault();buttons[0].focus()}}});let startX=null;viewer.addEventListener('touchstart',e=>startX=e.touches[0].clientX,{passive:true});viewer.addEventListener('touchend',e=>{if(startX!==null&&Math.abs(e.changedTouches[0].clientX-startX)>45)shift(e.changedTouches[0].clientX<startX?1:-1);startX=null;},{passive:true});document.querySelectorAll('.photo img').forEach(img=>img.onerror=()=>{img.alt='No se pudo cargar esta foto. El recuerdo sigue aquí.';});}
 function setupTreasure(){let opened=false;const count=keys.filter(k=>storage.get(k)==='complete').length;if(count<5){$('treasure-open').hidden=true;$('treasure-locked').hidden=false;return;}$('treasure-open').onclick=()=>{if(opened)return;opened=true;$('treasure-open').disabled=true;$('treasure-scene').classList.add('open');tone([392,523,659,784]);setTimeout(()=>{storage.set('lucero-tesoro-v1','complete');$('treasure-open').hidden=true;reward('treasure-reward');},reduced?0:1500);};}
-const setups={map:setupMap,encounter:setupEncounter,words:setupWords,sky:setupSky,sailing:setupSailing,gallery:setupGallery,treasure:setupTreasure};setups[document.body.dataset.page]?.();
+const setups={map:setupMap,encounter:setupEncounter,words:setupWords,sky:setupSky,sailing:setupSailing,gallery:setupGallery,treasure:setupTreasure};
+const pageIsland=document.body.dataset.island;
+if(pageIsland!==undefined&&!chapterAvailable(Number(pageIsland))){
+ document.querySelector('main')?.setAttribute('hidden','');
+ location.replace('../index.html?pendiente='+(Number(pageIsland)+1));
+}else {document.querySelector('main')?.removeAttribute('hidden');setups[document.body.dataset.page]?.();}
