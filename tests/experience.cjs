@@ -33,15 +33,18 @@ const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
   await page.locator('#rescue-retry').click();await page.locator('#rescue-pause').click();
   const score=await page.locator('#sailing-score').textContent();await page.clock.runFor(1500);assert.equal(await page.locator('#sailing-score').textContent(),score);
   await page.locator('#rescue-continue').click();
-  let won=false;
+  let won=false;const reactions=new Set();
   for(let i=0;i<480;i++){
    await page.clock.runFor(200);const head=await page.evaluate(()=>window.__head);
    if(head){await page.locator('#sailing-canvas').dispatchEvent('pointermove',{clientX:box.x+head.x,clientY:box.y+box.height*.7,pointerType:mobile?'touch':'mouse',pointerId:1});
     if(mobile)await page.touchscreen.tap(box.x+head.x,box.y+box.height*.7);
    }
+   const milestone=await page.locator('#antonio-reaction').getAttribute('data-milestone');
+   if(milestone){reactions.add(Number(milestone));assert(await page.locator('#antonio-reaction').isVisible());}
    if(await page.locator('#sailing-reward').isVisible()){won=true;break;}
    assert.equal(await page.locator('#rescue-retry').isVisible(),false,'autopilot can reach each portrait');
   }
+  assert.deepEqual([...reactions].sort((a,b)=>a-b),[4,8,12]);
   assert(won,'all 18 family members can be saved');assert.equal(await page.locator('#family-roster .rescued').count(),18);
   assert.match(await page.locator('#sailing-reward').textContent(),/Tu bebito, Antonio/);
   assert(await page.locator('#rescue-story').isVisible());await page.locator('#dialogue-next').click();assert.match(await page.locator('#speaker').textContent(),/Lucero/);

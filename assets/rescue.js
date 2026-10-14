@@ -30,7 +30,7 @@
   let typingTimer, typing = false, currentLine = '';
   function finishLine() {
     clearTimeout(typingTimer);typing=false;
-    el('dialogue-line').textContent=currentLine;
+    el('dialogue-copy').textContent=currentLine;
     const lastLine=chapter===(finale?ending:lines).length-1;
     el('dialogue-next').hidden=lastLine;
     el('sailing-start').hidden=finale||!lastLine;
@@ -39,7 +39,7 @@
   function say(index) {
     clearTimeout(typingTimer);
     const [who,name,line]=(finale?ending:lines)[index];
-    currentLine=line;el('speaker').textContent=name;
+    currentLine=line;el('dialogue-line').dataset.fullText=line;el('speaker').textContent=name;
     story.dataset.speaker=who;
     characters.forEach(actor=>{
       const active=actor.dataset.character===who;
@@ -51,10 +51,10 @@
     el('sailing-start').hidden=true;el('dialogue-next').hidden=false;
     el('dialogue-next').textContent='Mostrar el texto completo →';
     if(motion.matches){finishLine();return;}
-    typing=true;let count=0;el('dialogue-line').textContent='';
+    typing=true;let count=0;el('dialogue-copy').textContent='';
     function write(){
       if(count>=line.length){finishLine();return;}
-      el('dialogue-line').textContent=line.slice(0,++count);
+      el('dialogue-copy').textContent=line.slice(0,++count);
       typingTimer=setTimeout(write,/[,.!…?]/.test(line[count-1])?150:24);
     }
     write();
@@ -224,10 +224,32 @@
       ctx.globalAlpha=alpha;ctx.fillStyle='#f6dda2';ctx.beginPath();ctx.arc(p.x*width+(clock-p.born)*p.vx,p.y*height-(clock-p.born)*40,2.5,0,Math.PI*2);ctx.fill();
     }ctx.globalAlpha=1;
   }
+  const reactions={
+    4:'¡Wow, qué rápida! ¡Ya llevas cuatro a salvo!',
+    8:'¿Cómo lo logra? ¡Ocho rescatados! Esta capitana no deja de sorprenderme.',
+    12:'¡Doce! ¡Pero qué increíble eres, Lucero! Ya casi salvas a toda la familia.'
+  };
+  let reactionTimer;
+  function clearReaction(){
+    clearTimeout(reactionTimer);
+    el('antonio-reaction').hidden=true;
+    el('antonio-reaction').removeAttribute('data-milestone');
+    el('reaction-idle').hidden=false;
+  }
+  function reactToRescue(count){
+    if(!reactions[count])return;
+    clearTimeout(reactionTimer);
+    el('reaction-idle').hidden=true;
+    el('reaction-text').textContent=reactions[count];
+    el('antonio-reaction').dataset.milestone=String(count);
+    el('antonio-reaction').hidden=false;
+    reactionTimer=setTimeout(clearReaction,4200);
+  }
   function caught(person) {
     const count=game.rescued.length;
     el('sailing-score').textContent=`${count} / 18 a salvo`;
     el('family-count').textContent=`${count} de 18`;
+    reactToRescue(count);
     el(`family-${person.id}`).classList.add('rescued');
     el(`family-${person.id}`).querySelector('img').alt='Familiar rescatado';
     el('sailing-state').textContent='¡Un familiar a salvo! ♡';
@@ -239,6 +261,7 @@
     if(event.type==='catch'||event.type==='win')caught(event.person);
     if(event.type==='rock'){tone([196,247]);el('sailing-state').textContent='¡Cuidado con las rocas!';}
     if(event.type==='miss') {
+      clearReaction();
       direction=0;held.clear();
       el('result-label').textContent='Volvemos a intentarlo';
       el('result-title').textContent='Un familiar cayó al mar.';
@@ -248,6 +271,7 @@
       el('result-title').focus({preventScroll:true});
     }
     if(event.type==='win') {
+      clearReaction();
       play.hidden=true;story.hidden=false;story.classList.add('ending');finale=true;chapter=0;say(0);
       el('sailing-start').hidden=true;
       document.querySelector('.rescue-rules').hidden=true;el('asset-status').hidden=true;
@@ -269,6 +293,7 @@
   }
   function start() {
     if(!ready)return;
+    clearReaction();
     cancelAnimationFrame(frame);game=new FamilyRescueEngine(family);paused=false;held.clear();direction=0;clock=0;sparkles=[];
     story.hidden=true;play.hidden=false;overlay.hidden=true;el('sailing-reward').hidden=true;
     el('rescue-pause').disabled=false;el('sailing-score').textContent='0 / 18 a salvo';el('family-count').textContent='0 de 18';

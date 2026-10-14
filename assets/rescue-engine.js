@@ -15,7 +15,7 @@ globalThis.FamilyRescueEngine = class FamilyRescueEngine {
     this.rescued = [];
     this.boat = .5;
     this.target = .5;
-    this.wait = .8;
+    this.wait = .4;
     this.active = null;
     this.rocks = [];
     this.cooldown = 0;
@@ -42,7 +42,7 @@ globalThis.FamilyRescueEngine = class FamilyRescueEngine {
     if (!this.active) {
       this.wait -= dt;
       if (this.wait > 0) return null;
-      this.active = {person:this.order[this.rescued.length], x:.13 + this.random() * .74, y:-.1, speed:.28 + this.random() * .035 + this.rescued.length * .0015};
+      this.active = {person:this.order[this.rescued.length], x:.13 + this.random() * .74, y:-.1, speed:2*(.28 + this.random() * .035 + this.rescued.length * .0015)};
       // Rocks arrive before the portrait, leaving its catch lane clear. Steering
       // through them is still necessary; a hit knocks the boat aside as before.
       for(let i=0;i<2;i++) {
@@ -57,7 +57,7 @@ globalThis.FamilyRescueEngine = class FamilyRescueEngine {
     if (head.y >= .76 && head.y <= .85 && Math.abs(head.x - this.boat) <= .105) {
       this.rescued.push(head.person);
       this.active = null;
-      this.wait = .3 + this.random() * .35;
+      this.wait = .15 + this.random() * .175;
       if (this.rescued.length === this.order.length) this.state = 'won';
       return {type:this.state === 'won' ? 'win' : 'catch',person:head.person};
     }
