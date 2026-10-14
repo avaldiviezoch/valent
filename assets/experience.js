@@ -66,7 +66,8 @@ function setupMap() {
  [...islands.children].forEach((g,i)=>{
   const land=landscapes[i];
   g.dataset.landscape=land.asset;
-  g.querySelector('.terrain').innerHTML=`<image href="assets/${land.asset}" x="${-land.width/2}" y="${-land.height/2}" width="${land.width}" height="${land.height}" preserveAspectRatio="xMidYMid meet"><title>${land.description}</title></image>`;
+  const asset=chapterAvailable(i)?land.asset:land.asset.replace('.webp','-locked.webp');
+  g.querySelector('.terrain').innerHTML=`<image href="assets/${asset}" x="${-land.width/2}" y="${-land.height/2}" width="${land.width}" height="${land.height}" preserveAspectRatio="xMidYMid meet"><title>${land.description}</title></image>`;
  });
  function render(){world.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`;}
  function fit(){
@@ -105,6 +106,9 @@ function setupMap() {
   [...islands.children].forEach((g,i)=>{
    const available=chapterAvailable(i),complete=!!visited[i];
    g.classList.toggle('complete',complete);g.classList.toggle('locked',!available);
+   const image=g.querySelector('.terrain image');
+   const asset=available?landscapes[i].asset:landscapes[i].asset.replace('.webp','-locked.webp');
+   const source='assets/'+asset;if(image.getAttribute('href')!==source)image.setAttribute('href',source);
    g.setAttribute('aria-disabled',String(!available));
    g.querySelector('.check').textContent=complete?'✓':i+1;
    g.setAttribute('aria-label',`${i+1}. ${stops[i].title}, ${available?(complete?'completada':'disponible'):'próximamente, otro mesario'}`);

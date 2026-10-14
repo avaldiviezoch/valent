@@ -6,7 +6,7 @@ Una aventura romántica estática para GitHub Pages, sin compilación ni depende
 
 Solo está disponible **Izar las velas**, en la primera isla (`islas/encuentro.html`). El juego de navegación conserva su mecánica existente; al completarlo aparece un mensaje de tu bebito y se guarda el recuerdo. La antigua linterna se trasladó a `islas/aventuras.html`, en la cuarta isla, y queda bloqueada para personalizarla después.
 
-Las otras cinco islas se ven en blanco y negro y no permiten jugar, tampoco entrando por sus enlaces directos. El progreso de las versiones de demostración se conserva en el navegador, pero no se usa para dar por completados ni desbloquear los nuevos juegos personales.
+Las otras cinco islas se ven en blanco y negro y no permiten jugar, tampoco entrando por sus enlaces directos. Cada estado bloqueado utiliza un WebP realmente monocromo, conservando la transparencia, en vez de depender de combinar filtros SVG y CSS en el navegador. Al habilitar una isla se recupera automáticamente el recurso original a color. Las variantes se regeneran con `python scripts/build-locked-islands.py` (Pillow es solo una herramienta de desarrollo). El progreso de las versiones de demostración se conserva en el navegador, pero no se usa para dar por completados ni desbloquear los nuevos juegos personales.
 
 El mapa mantiene las seis islas visibles en un archipiélago irregular. El menú de hamburguesa reúne capítulos, disponibilidad y progreso; ya no hay una barra inferior permanente. La carta inicial aparece una vez por sesión y se puede volver a abrir desde el menú.
 
@@ -41,6 +41,9 @@ npm test
 npm run test:islands
 npm run test:responsive
 npm run test:water
+npm run test:colors
 ```
 
 Se verifican la carta del mesario, el menú y su foco, las cinco islas bloqueadas, los enlaces directos, la disponibilidad por fecha y preparación, el aislamiento del progreso anterior y el primer juego completo con su mensaje y guardado. Las pruebas de mapa cubren nueve tamaños y orientaciones de 320×568 a 1440×900 y comprueban los seis paisajes y sus nombres. Se comprueban los píxeles del agua entre fotogramas, movimiento reducido, cambios de tamaño y alternativa sin WebGL. Las pruebas de Chromium no sustituyen una prueba en un iPhone físico.
+
+La prueba de color comprueba los píxeles de las cinco islas bloqueadas con los filtros desactivados, además del cambio a color al habilitar una isla. Se ejecuta en Chromium móvil, WebKit móvil y Chromium de escritorio. Para instalar el motor adicional de pruebas: `npx playwright install webkit`.

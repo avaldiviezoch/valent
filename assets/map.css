@@ -107,8 +107,8 @@ body.map-page {
 .voyage-intro>p:not(.eyebrow) {font:21px/1.45 var(--serif);color:#d7dfd3}
 .voyage-intro .voyage-intro-today {font:11px/1.65 var(--sans)!important;color:var(--gold)!important;border-top:1px solid var(--line);padding-top:16px;margin-top:22px}
 .voyage-intro .primary {margin-top:8px;font-size:12px}
-.map-page .island.locked .terrain {filter:url(#terrainShadow) grayscale(1) brightness(.85);opacity:.78}
-.map-page .island.locked:hover .terrain,.map-page .island.locked:focus-visible .terrain {filter:url(#terrainShadow) grayscale(1) brightness(.95)}
+.map-page .island.locked .terrain {filter:url(#terrainShadow);opacity:1}
+.map-page .island.locked:hover .terrain,.map-page .island.locked:focus-visible .terrain {filter:url(#terrainShadow)}
 .map-page .island.locked .marker {fill:#33444a;stroke:#9ba5a4}
 .map-page .island.locked .check,.map-page .island.locked .name {fill:#d1d7d4}
 .map-page .island.locked .label-bg {fill:#1b2c34d9;stroke:#99a2a544}
