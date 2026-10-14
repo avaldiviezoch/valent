@@ -21,7 +21,7 @@
   const lines = [
     ['antonio','Antonio · El malvado','¡He dejado a tu familia a la deriva! A ver si eres capaz de rescatarlos a todos, Lucero…'],
     ['lucero','Lucero · La salvadora','¡Con mi barco nadie se queda atrás! Voy a salvarlos a todos. Familia, ¡allá voy!'],
-    ['antonio','Antonio · El malvado','Tendrás que atrapar a los 18. Tienes dos vidas: cada caída te quita una. Si pierdes las dos, habrá que comenzar de nuevo. ¡A ver qué tal navegas!']
+    ['antonio','Antonio · El malvado','Tendrás que atrapar a los 18. Tienes dos vidas: cada choque o caída te quita una. Si pierdes las dos, habrá que comenzar de nuevo. ¡A ver qué tal navegas!']
   ];
   const ending = [
     ['antonio','Antonio · Un malvado enamorado','¡No puede ser! ¡Los salvaste a todos! Te felicito, mi pequeña Lucero. Esta vez me ganaste…'],
@@ -262,8 +262,8 @@
   function outcome(event) {
     if(event.type==='spawn')el('sailing-state').textContent='¡Recoge la siguiente cabeza!';
     if(event.type==='catch'||event.type==='win')caught(event.person);
-    if(event.type==='rock'){tone([196,247]);el('sailing-state').textContent='¡Cuidado con las rocas!';}
-    if(event.type==='life'||event.type==='miss'){
+    if(event.type==='rock'){tone([196,247]);el('sailing-state').textContent='¡Choque! Te queda una vida.';}
+    if(event.type==='rock'||event.type==='life'||event.type==='miss'){
       el('rescue-lives').textContent=`♥ ${game.lives}`;
       el('rescue-lives').setAttribute('aria-label',`${game.lives} ${game.lives===1?'vida':'vidas'}`);
     }

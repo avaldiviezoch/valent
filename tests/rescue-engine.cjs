@@ -26,7 +26,7 @@ console.log('PASS 30 complete random voyages, 18 unique family members, reachabl
 
 const obstacle=new FamilyRescueEngine(people);obstacle.wait=3;
 obstacle.rocks=[{x:.5,y:.77,radius:.035,speed:0,hit:false}];
-assert.equal(obstacle.update(1/60).type,'rock');assert.notEqual(obstacle.boat,.5);assert(obstacle.cooldown>0);assert.equal(obstacle.state,'playing');
+assert.equal(obstacle.update(1/60).type,'rock');assert.notEqual(obstacle.boat,.5);assert(obstacle.cooldown>0);assert.equal(obstacle.state,'playing');assert.equal(obstacle.lives,1);
 assert.notEqual(obstacle.update(1/60)?.type,'rock');
 console.log('PASS rock collision knocks the boat back, grants brief recovery and does not bypass family rescue');
 
@@ -52,3 +52,12 @@ for(let i=0;i<10000&&comeback.state==='playing';i++){
 }
 assert(spent);assert.equal(comeback.state,'won');assert.equal(comeback.rescued.length,18);assert.equal(comeback.lives,1);
 console.log('PASS exactly two lives, first miss continues, second loses, missed family returns and all 18 can still be saved');
+
+const crashes=new FamilyRescueEngine(people);crashes.wait=10;
+const rock=()=>({x:crashes.boat,y:.77,radius:.035,speed:0,hit:false});
+crashes.rocks=[rock()];assert.equal(crashes.update(0).type,'rock');assert.equal(crashes.lives,1);
+crashes.boat=crashes.target=.5;assert.equal(crashes.update(0),null);assert.equal(crashes.lives,1,'same rock cannot deal damage twice');
+crashes.rocks.push(rock());const fatal=crashes.update(0);assert.equal(fatal.type,'miss');assert.equal(fatal.reason,'rock');assert.equal(crashes.lives,0);assert.equal(crashes.state,'lost');assert.equal(crashes.update(.05),null);
+const mixed=new FamilyRescueEngine(people);mixed.active={person:people[0],x:.8,y:.9,speed:0};mixed.update(0);assert.equal(mixed.lives,1);
+mixed.rocks=[{x:mixed.boat,y:.77,radius:.035,speed:0,hit:false}];assert.equal(mixed.update(0).type,'miss');assert.equal(mixed.lives,0);
+console.log('PASS two distinct rocks end the game even during the blink, same rock counts once, and missed heads share the same lives');
