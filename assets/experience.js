@@ -6,7 +6,7 @@ const storage = {
   get(key, fallback = null) { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } },
   set(key, value) { try { localStorage.setItem(key, value); } catch { /* The adventure still works without persistence. */ } }
 };
-const keys = ['valent-izar-velas-v1','valent-ruta-personal-v1','valent-recuerdos-personal-v1','valent-luz-encuentro-v1','valent-cielo-personal-v1'];
+const keys = ['valent-rescate-familia-v1','valent-ruta-personal-v1','valent-recuerdos-personal-v1','valent-luz-encuentro-v1','valent-cielo-personal-v1'];
 // A chapter is released only after it has been prepared AND its mesario has arrived.
 const chapters=[
  {title:'Izar las velas',type:'Nuestro primer juego',file:'encuentro',ready:true,releaseOn:'2026-10-14'},
