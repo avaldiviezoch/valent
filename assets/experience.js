@@ -38,8 +38,20 @@ function setupMap() {
   g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open(i)}});
   islands.append(g);
  });
- // Raster terrain supplies natural sand, foliage and rocks; SVG keeps the map interactive.
- [...islands.children].forEach((g,i)=>{g.querySelector('.terrain').innerHTML=`<ellipse class="island-swell" cy="12" rx="121" ry="67" fill="none" stroke="#a7dfd170" stroke-width="2"/><image href="assets/island.webp" x="-145" y="-100" width="290" height="194" transform="rotate(${[-8,12,-15,7,-4,18][i]})" preserveAspectRatio="xMidYMid meet"/>`;});
+ // Each destination has its own photographed-style terrain and coastline.
+ const landscapes=[
+  {asset:'island.webp',description:'Isla tropical de palmeras y colinas',width:290,height:194},
+  {asset:'island-crescent.webp',description:'Bahía de arena en media luna',width:330,height:220},
+  {asset:'island-twins.webp',description:'Dos islotes unidos por un banco de arena',width:330,height:220},
+  {asset:'island-volcanic.webp',description:'Isla volcánica de costas oscuras',width:310,height:220},
+  {asset:'island-waterfall.webp',description:'Acantilados de selva y una cascada',width:330,height:220},
+  {asset:'island-atoll.webp',description:'Atolón de coral con laguna turquesa',width:320,height:220}
+ ];
+ [...islands.children].forEach((g,i)=>{
+  const land=landscapes[i];
+  g.dataset.landscape=land.asset;
+  g.querySelector('.terrain').innerHTML=`<image href="assets/${land.asset}" x="${-land.width/2}" y="${-land.height/2}" width="${land.width}" height="${land.height}" preserveAspectRatio="xMidYMid meet"><title>${land.description}</title></image>`;
+ });
  function render(){world.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`;}
  function fit(){const w=atlas.clientWidth,h=atlas.clientHeight,mobile=innerWidth<=700;const positions=mobile?[[175,155],[555,265],[175,470],[555,580],[175,785],[555,895]]:[[260,640],[460,410],[720,640],[940,370],[1150,570],[1190,170]];stops.forEach((s,i)=>{[s.x,s.y]=positions[i];islands.children[i].setAttribute('transform',`translate(${s.x} ${s.y})`);});const ww=mobile?760:1400,wh=mobile?1080:900;world.style.width=ww+'px';world.style.height=wh+'px';world.querySelector(':scope > svg').setAttribute('viewBox',`0 0 ${ww} ${wh}`);const path=mobile?'M175 155Q400 100 555 265T175 470T555 580T175 785T555 895':'M260 640Q280 440 460 410T720 640T940 370T1150 570T1190 170';world.querySelectorAll('.route,.route-glow').forEach(p=>p.setAttribute('d',path));scale=mobile?Math.min(w/800,h/1110):Math.max(.31,Math.min(w/1450,(h-110)/1000));tx=(w-ww*scale)/2;ty=(h-wh*scale)/2+(mobile?0:20);const latest=Math.max(0,visited.lastIndexOf(true));ship.style.left=stops[latest].x+'px';ship.style.top=(stops[latest].y+58)+'px';render();}
  function zoom(f,x=atlas.clientWidth/2,y=atlas.clientHeight/2){const old=scale;scale=Math.max(.27,Math.min(2.2,scale*f));tx=x-(x-tx)*scale/old;ty=y-(y-ty)*scale/old;render();}

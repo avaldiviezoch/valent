@@ -15,7 +15,7 @@ El avance y la preferencia de sonido se guardan en el navegador. Se conservan la
 
 ## Diseño y accesibilidad
 
-Mar e isla originales en WebP, luz ambiental, costas animadas, estela del barco y partículas al descubrir recuerdos. Mapa adaptado a escritorio y celular, zoom, arrastre y pellizco. Controles con nombres accesibles, navegación por teclado, foco de diálogos y compatibilidad con `prefers-reduced-motion`. En el juego del barco el movimiento es parte de la mecánica; con movimiento reducido se desactivan la estela y las ondas decorativas.
+Mar y seis paisajes originales en WebP: isla tropical, bahía en media luna, islas gemelas, volcán, acantilados con cascada y atolón de coral. Cada destino utiliza su propio recurso transparente con una silueta y un terreno distintos. Luz ambiental, estela del barco y partículas al descubrir recuerdos. Mapa adaptado a escritorio y celular, zoom, arrastre y pellizco. Controles con nombres accesibles, navegación por teclado, foco de diálogos y compatibilidad con `prefers-reduced-motion`. En el juego del barco el movimiento es parte de la mecánica; con movimiento reducido se desactivan la estela y las ondas decorativas.
 
 Las cuatro fotografías mantienen sus enlaces originales al repositorio Wedding. Las tipografías usan Google Fonts con alternativas locales. El resto de la experiencia está incluido en este repositorio. `semivalentin.html` y los audios anteriores se conservan.
 
@@ -39,3 +39,5 @@ python -m http.server 8765 --bind 127.0.0.1
 ```
 
 Con el servidor abierto, ejecuta `npm test` en otra terminal. Las pruebas usan un navegador limpio y no modifican la información del navegador personal.
+
+La revisión de paisajes tiene una prueba específica: `npm run test:islands`. Comprueba los seis recursos distintos, su carga, el mapa a cuatro anchos de pantalla y la navegación a los seis destinos.

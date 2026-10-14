@@ -30,3 +30,4 @@
 @media(max-width:700px){.island .number{display:none}.island .name{font-size:30px}.island .label-bg{width:300px;x:-150px;height:56px}.island .name{transform:translateY(-8px)}}
 
 .ocean:before{animation:sea-light 12s ease-in-out infinite alternate}@keyframes sea-light{to{opacity:.3}}
+.island:hover .check,.island:focus-visible .check{fill:#173d3b}
