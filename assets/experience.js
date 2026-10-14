@@ -31,7 +31,7 @@ function tone(notes = [523,659,784]) {
   try {
     audio ||= new (window.AudioContext || window.webkitAudioContext)();
     if (audio.state === 'suspended') audio.resume();
-    notes.forEach((f,i) => { const o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime+i*.12; o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.001,t);g.gain.exponentialRampToValueAtTime(.035,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.8);o.connect(g).connect(audio.destination);o.start(t);o.stop(t+.85); });
+    notes.forEach((f,i) => { const o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime+i*.12; o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.001,t);g.gain.exponentialRampToValueAtTime(document.body.dataset.page==='rescue'?.0175:.035,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.8);o.connect(g).connect(audio.destination);o.start(t);o.stop(t+.85); });
   } catch { toast('Tu navegador no permite reproducir sonido.'); }
 }
 function toast(message) { let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');document.body.append(t);}t.textContent=message;t.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove('show'),3200); }

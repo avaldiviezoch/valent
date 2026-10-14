@@ -6,7 +6,7 @@
   if (!map && !game) return;
   const track = new Audio(map ? 'one-piece-episode-1000-special-o.mp3' : '../familia/MUSICA%20DE%20VIDEO%20JUEGO.mp3');
   track.preload = 'metadata';track.loop = false;
-  const level = map ? .10 : .18;
+  const level = map ? .35 : .09;
   track.volume = level;
   let context, attempted = false;
   function unlock() {
@@ -20,35 +20,32 @@
         gain.gain.value = level;source.connect(gain);gain.connect(context.destination);
         track.volume = 1;
       }
-      if (context?.state === 'suspended') context.resume().catch(() => {});
+      if (context && context.state !== 'running' && context.state !== 'closed') return context.resume();
     } catch { /* Native volume is the fallback for browsers without Web Audio. */ }
   }
   const music = {
     play(restart = false) {
-      unlock();
+      const activated = unlock();
       if (restart) track.currentTime = 0;
-      return track.play().then(() => true).catch(() => false);
+      return Promise.all([track.play(),activated]).then(() => !context || context.state === 'running').catch(() => false);
     },
     pause() { track.pause(); }
   };
   if (game) globalThis.ValentGameMusic = music;
   if (map) {
-    const key = 'valent-map-music-played-v1';
     let played = false, pending = false;
-    try { played = sessionStorage.getItem(key) === 'yes'; } catch {}
     async function begin() {
       if (played || pending || document.hidden) return;
       pending = true;
       if (await music.play()) {
         played = true;
-        try { sessionStorage.setItem(key,'yes'); } catch {}
-        document.removeEventListener('pointerdown',begin);
+        document.removeEventListener('click',begin);
         document.removeEventListener('keydown',begin);
       }
       pending = false;
     }
     if (!played) {
-      document.addEventListener('pointerdown',begin);
+      document.addEventListener('click',begin);
       document.addEventListener('keydown',begin);
       // A real tap/key unlocks audible playback on Safari and mobile Chrome.
       // The welcome button supplies that interaction without an extra control.

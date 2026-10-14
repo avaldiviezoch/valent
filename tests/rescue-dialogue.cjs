@@ -17,7 +17,7 @@ const assert=require('node:assert/strict');
  assert.equal(await page.locator('#rescue-story').getAttribute('data-speaker'),'lucero');
  assert.equal(await page.locator('.cast-member:visible').count(),1);
  const sprite=await page.locator('.cast').boundingBox(), box=await page.locator('.story-dialogue').boundingBox();
- assert(sprite.x>=box.x+box.width-1,'Lucero is beside the right edge of the dialogue frame');
+ assert(Math.abs(sprite.x+sprite.width/2-box.x-box.width/2)<2,'Lucero is centered above the dialogue frame');
  await page.screenshot({path:'../../outputs/dialogo-lucero-movil-v2.png',fullPage:true});
  await page.locator('#dialogue-next').click();
  await page.locator('#dialogue-next').click();
