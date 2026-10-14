@@ -7,7 +7,9 @@ const storage = {
   set(key, value) { try { localStorage.setItem(key, value); } catch { /* The adventure still works without persistence. */ } }
 };
 const keys = ['lucero-isla-encuentro-v1','lucero-isla-ruta-v1','lucero-isla-recuerdos-v1','lucero-isla-aventuras-v1','lucero-isla-suenos-v1'];
-let soundOn = storage.get('valent-sound') === 'on', audio;
+// Audio effects are enabled by default; browsers unlock audio on the first interaction.
+const soundOn = true;
+let audio;
 function tone(notes = [523,659,784]) {
   if (!soundOn) return;
   try {
@@ -16,8 +18,6 @@ function tone(notes = [523,659,784]) {
     notes.forEach((f,i) => { const o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime+i*.12; o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.001,t);g.gain.exponentialRampToValueAtTime(.035,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.8);o.connect(g).connect(audio.destination);o.start(t);o.stop(t+.85); });
   } catch { toast('Tu navegador no permite reproducir sonido.'); }
 }
-function soundButton() { const b=$('sound');if(!b)return;b.setAttribute('aria-pressed',String(soundOn));b.setAttribute('aria-label',soundOn?'Desactivar sonido':'Activar sonido');b.innerHTML=soundOn?'♪':'♫'; }
-$('sound')?.addEventListener('click',()=>{soundOn=!soundOn;storage.set('valent-sound',soundOn?'on':'off');soundButton();if(soundOn)tone();toast(soundOn?'Sonido activado':'Sonido desactivado');});soundButton();
 function toast(message) { let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');document.body.append(t);}t.textContent=message;t.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove('show'),3200); }
 function burst(x=innerWidth/2,y=innerHeight/2,n=26) { if(reduced)return;let layer=$('fx');if(!layer){layer=document.createElement('div');layer.id='fx';layer.className='fx';layer.setAttribute('aria-hidden','true');document.body.append(layer);}for(let i=0;i<n;i++){const p=document.createElement('i'),a=Math.random()*Math.PI*2,d=40+Math.random()*150;p.style.cssText=`left:${x}px;top:${y}px;--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d-35}px;animation-duration:${.8+Math.random()}s;background:${i%3?'#f4dca5':'#b7dec8'}`;layer.append(p);setTimeout(()=>p.remove(),2100);} }
 function reward(id) { const el=$(id);el.hidden=false;tone();burst();el.scrollIntoView({behavior:reduced?'instant':'smooth',block:'center'});el.querySelector('h2')?.focus({preventScroll:true}); }
@@ -53,9 +53,25 @@ function setupMap() {
   g.querySelector('.terrain').innerHTML=`<image href="assets/${land.asset}" x="${-land.width/2}" y="${-land.height/2}" width="${land.width}" height="${land.height}" preserveAspectRatio="xMidYMid meet"><title>${land.description}</title></image>`;
  });
  function render(){world.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`;}
- function fit(){const w=atlas.clientWidth,h=atlas.clientHeight,mobile=innerWidth<=700;const positions=mobile?[[175,155],[555,265],[175,470],[555,580],[175,785],[555,895]]:[[260,640],[460,410],[720,640],[940,370],[1150,570],[1190,170]];stops.forEach((s,i)=>{[s.x,s.y]=positions[i];islands.children[i].setAttribute('transform',`translate(${s.x} ${s.y})`);});const ww=mobile?760:1400,wh=mobile?1080:900;world.style.width=ww+'px';world.style.height=wh+'px';world.querySelector(':scope > svg').setAttribute('viewBox',`0 0 ${ww} ${wh}`);const path=mobile?'M175 155Q400 100 555 265T175 470T555 580T175 785T555 895':'M260 640Q280 440 460 410T720 640T940 370T1150 570T1190 170';world.querySelectorAll('.route,.route-glow').forEach(p=>p.setAttribute('d',path));scale=mobile?Math.min(w/800,h/1110):Math.max(.31,Math.min(w/1450,(h-110)/1000));tx=(w-ww*scale)/2;ty=(h-wh*scale)/2+(mobile?0:20);const latest=Math.max(0,visited.lastIndexOf(true));ship.style.left=stops[latest].x+'px';ship.style.top=(stops[latest].y+58)+'px';render();}
+ function fit(){
+  const w=atlas.clientWidth,h=atlas.clientHeight,portrait=h/w>.8;
+  const positions=portrait?[[185,145],[575,145],[185,465],[575,465],[185,785],[575,785]]:[[230,155],[700,155],[1170,155],[1170,515],[700,515],[230,515]];
+  document.body.dataset.layout=portrait?'portrait':'landscape';
+  stops.forEach((s,i)=>{[s.x,s.y]=positions[i];islands.children[i].setAttribute('transform',`translate(${s.x} ${s.y})`);});
+  const ww=portrait?760:1400,wh=portrait?970:705;
+  world.style.width=ww+'px';world.style.height=wh+'px';
+  world.querySelector(':scope > svg').setAttribute('viewBox',`0 0 ${ww} ${wh}`);
+  const path=portrait?'M185 145Q380 65 575 145Q690 300 185 465Q380 390 575 465Q690 620 185 785Q380 710 575 785':'M230 155Q465 55 700 155T1170 155Q1320 335 1170 515Q935 615 700 515T230 515';
+  world.querySelectorAll('.route,.route-glow').forEach(p=>p.setAttribute('d',path));
+  // Fit the entire atlas, including island labels, within its actual available space.
+  scale=Math.max(.01,Math.min((w-20)/ww,(h-8)/wh));
+  tx=(w-ww*scale)/2;ty=(h-wh*scale)/2;
+  const latest=Math.max(0,visited.lastIndexOf(true));
+  ship.style.left=stops[latest].x+'px';ship.style.top=(stops[latest].y+58)+'px';render();
+ }
  function zoom(f,x=atlas.clientWidth/2,y=atlas.clientHeight/2){const old=scale;scale=Math.max(.27,Math.min(2.2,scale*f));tx=x-(x-tx)*scale/old;ty=y-(y-ty)*scale/old;render();}
- $('plus').onclick=()=>zoom(1.25);$('minus').onclick=()=>zoom(.8);$('center').onclick=fit;
+ // The map fits automatically. Pinch and trackpad zoom remain available without toolbar buttons.
+ atlas.addEventListener('dblclick',fit);
  atlas.addEventListener('wheel',e=>{e.preventDefault();const r=atlas.getBoundingClientRect();zoom(e.deltaY<0?1.08:.92,e.clientX-r.left,e.clientY-r.top)},{passive:false});
  const pointers=new Map();let suppressClick=false,start=null,lastDistance=0;
  atlas.addEventListener('pointerdown',e=>{if(e.button!==0)return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});start={x:e.clientX,y:e.clientY};suppressClick=false;});
@@ -64,9 +80,7 @@ function setupMap() {
  function update(){visited=keys.map(k=>storage.get(k)==='complete');const n=visited.filter(Boolean).length;[...islands.children].forEach((g,i)=>{g.classList.toggle('complete',!!visited[i]);g.classList.toggle('locked',i===5&&n<5);g.querySelector('.check').textContent=i===5?(n===5?'✦':'◇'):(visited[i]?'✓':i+1);g.setAttribute('aria-label',`${stops[i].title}, ${i===5?(n===5?'disponible':'completa las cinco islas'):visited[i]?'completada':'pendiente'}`);});$('progress-count').textContent=`${n} de 5 recuerdos descubiertos`;$('progress-value').style.strokeDashoffset=113*(1-n/5);$('next').textContent=n===5?'Descubrir el tesoro →':'Continuar el viaje →';const latest=Math.max(0,visited.lastIndexOf(true));ship.style.left=stops[latest].x+'px';ship.style.top=(stops[latest].y+58)+'px';}
  function open(i){if(travel)return;if(i===5&&visited.filter(Boolean).length<5){toast('El tesoro se abre al completar las cinco islas.');tone([294,349]);return;}travel=true;tone([392,523,659]);const s=stops[i];ship.classList.add('sailing');ship.style.transition=reduced?'none':'left 1.6s ease-in-out,top 1.6s ease-in-out';ship.style.left=s.x+'px';ship.style.top=(s.y+50)+'px';toast('Navegando hacia '+s.title+'…');setTimeout(()=>location.href='islas/'+s.file+'.html',reduced?40:1700);}
  $('next').onclick=()=>{const i=visited.indexOf(false);open(i<0?5:i)};
- const welcome=$('welcome');if(storage.get('valent-welcome')==='seen'||location.search.includes('isla'))welcome.hidden=true;else{document.querySelectorAll('body > header,body > main,body > section,body > footer').forEach(el=>el.inert=true);$('start').focus();}
- welcome.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();$('start').focus();}});
- $('start').onclick=()=>{welcome.hidden=true;document.querySelectorAll('body > header,body > main,body > section,body > footer').forEach(el=>el.inert=false);storage.set('valent-welcome','seen');$('next').focus();tone();};
+ new ResizeObserver(fit).observe(atlas);
  window.addEventListener('resize',fit);window.addEventListener('pageshow',()=>{travel=false;ship.classList.remove('sailing');update()});window.addEventListener('storage',update);fit();update();
  if(location.search.includes('isla')){history.replaceState(null,'',location.pathname);setTimeout(()=>{toast('Un nuevo recuerdo en nuestra historia.');burst(innerWidth/2,innerHeight-70)},400);}
 }

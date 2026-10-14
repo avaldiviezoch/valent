@@ -5,7 +5,7 @@ const base='http://127.0.0.1:8765';
  const browser=await chromium.launch({headless:true});
  const page=await browser.newPage({viewport:{width:1280,height:900}});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto(base);await page.getByRole('button',{name:'Zarpar contigo'}).click();
+ await page.goto(base);
  await page.locator('.island').nth(5).click();assert.match(await page.locator('#toast').textContent(),/cinco/);
  await page.goto(base+'/islas/tesoro.html');assert.equal(await page.locator('#treasure-locked').isVisible(),true);
  await page.goto(base+'/islas/encuentro.html');for(let i=0;i<4;i++)await page.locator('#lantern').click();await page.locator('#encounter-reward').waitFor({state:'visible'});await page.locator('[data-finish]').click();await page.waitForURL(base+'/index.html?isla=1');await page.waitForTimeout(100);assert.match(await page.locator('#progress-count').textContent(),/1 de 5/);

@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "test": "node tests/experience.cjs && node tests/input.cjs",
-    "test:islands": "node tests/islands.cjs"
+    "test:islands": "node tests/islands.cjs",
+    "test:responsive": "node tests/responsive.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

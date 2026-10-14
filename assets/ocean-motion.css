@@ -1,0 +1,28 @@
+/* Two offset water textures make the surface swell while its highlights drift. */
+.ocean {
+  inset:-4%;
+  background-size:cover;
+  transform-origin:center;
+  animation:ocean-swell 20s ease-in-out infinite alternate;
+  will-change:transform;
+}
+.ocean::before {
+  inset:-4%;
+  background:url('ocean.webp') center/cover no-repeat;
+  opacity:.17;
+  mix-blend-mode:screen;
+  animation:ocean-current 11s ease-in-out infinite alternate;
+  will-change:transform,opacity;
+}
+@keyframes ocean-swell {
+  from {transform:translate3d(-.7%,-.35%,0) scale(1.015) rotate(-.15deg)}
+  to {transform:translate3d(.7%,.4%,0) scale(1.035) rotate(.15deg)}
+}
+@keyframes ocean-current {
+  0% {transform:translate3d(-1%,-.5%,0) scale(1.02);opacity:.12}
+  50% {opacity:.2}
+  100% {transform:translate3d(1%,.7%,0) scale(1.045);opacity:.14}
+}
+@media(prefers-reduced-motion:reduce) {
+  .ocean,.ocean::before {animation:none;will-change:auto;transform:none}
+}

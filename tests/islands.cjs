@@ -5,7 +5,7 @@ const assert=require('node:assert/strict');
  const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  const base='http://127.0.0.1:8765';
- await page.goto(base);await page.locator('#start').click();
+ await page.goto(base);
  const assets=await page.locator('.island .terrain image').evaluateAll(images=>images.map(img=>img.getAttribute('href')));
  assert.equal(new Set(assets).size,6,'six distinct terrain assets');
  const decoded=await page.evaluate(async assets=>Promise.all(assets.map(src=>new Promise(resolve=>{const img=new Image();img.onload=()=>resolve({src,width:img.naturalWidth,height:img.naturalHeight});img.onerror=()=>resolve({src,error:true});img.src=src;}))),assets);
