@@ -1,0 +1,120 @@
+/* A full-screen atlas with a compact header and room reserved for every island. */
+body.map-page {
+  height:100svh;
+  height:100dvh;
+  min-height:0;
+  display:grid;
+  grid-template-rows:auto auto minmax(0,1fr) auto;
+  overflow:hidden;
+}
+.map-page .nav {
+  position:relative;
+  inset:auto;
+  width:100%;
+  max-width:none;
+  justify-content:center;
+  padding:calc(12px + env(safe-area-inset-top)) 20px 0;
+  background:none;
+  pointer-events:auto;
+}
+.map-page .brand {font-size:22px;text-align:center;line-height:1.1}
+.map-page .brand small {font-size:8px;letter-spacing:.26em;margin-bottom:3px}
+.map-page .map-title {
+  position:relative;
+  inset:auto;
+  max-width:none;
+  width:100%;
+  padding:16px 20px 4px;
+  text-align:center;
+}
+.map-page .map-title .eyebrow {
+  display:block;
+  margin:0 0 7px;
+  font-size:9px;
+  letter-spacing:.23em;
+  max-width:none;
+  line-height:1.5;
+}
+.map-page .map-title h1 {
+  font-size:clamp(32px,4.2vw,58px);
+  line-height:1.04;
+  margin:0 0 8px;
+  text-wrap:balance;
+}
+.map-page .map-title h1 br {display:none}
+.map-page .map-title p:last-child {
+  display:block;
+  max-width:none;
+  margin:0;
+  font-size:12px;
+  line-height:1.5;
+  color:#c2d5d0;
+}
+.map-page .atlas {position:relative;inset:auto;min-height:0;width:100%;height:100%}
+.map-page .world .sea-name,.map-page .map-compass {display:none}
+.map-page .island .number {display:none}
+.map-page .island .label-bg {x:-165px;width:330px;height:56px}
+.map-page .island .name {font-size:32px;transform:translateY(-8px)}
+.map-page .map-footer {
+  position:relative;
+  inset:auto;
+  max-width:1200px;
+  width:calc(100% - 40px);
+  margin:0 auto calc(14px + env(safe-area-inset-bottom));
+  padding:14px 22px;
+  border-radius:18px;
+  gap:16px;
+  min-width:0;
+}
+.map-page .map-progress {gap:12px;min-width:0}
+.map-page .map-progress strong {font-size:12px;line-height:1.45;display:block}
+.map-page .map-progress p {display:block;font-size:10px;max-width:none;margin-top:3px;line-height:1.4}
+.map-page .map-footer .primary {font-size:12px;padding:12px 22px;min-height:44px;white-space:nowrap}
+.map-page .map-footer .progress-ring {display:block;width:38px;height:38px;flex-shrink:0}
+.map-page .map-legend {display:block}
+@media(max-width:700px) {
+  .map-page .nav {padding-top:calc(10px + env(safe-area-inset-top))}
+  .map-page .brand {font-size:20px}
+  .map-page .brand small {font-size:7px;margin-bottom:2px}
+  .map-page .map-title {padding:13px 16px 2px}
+  .map-page .map-title .eyebrow {font-size:8px;letter-spacing:.18em;margin-bottom:6px}
+  .map-page .map-title h1 {font-size:clamp(32px,9vw,42px);line-height:1.02;margin-bottom:8px}
+  .map-page .map-title h1 br {display:block}
+  .map-page .map-title p:last-child {font-size:11px}
+  .map-page .map-footer {width:calc(100% - 24px);padding:12px;gap:10px;border-radius:16px;margin-bottom:calc(10px + env(safe-area-inset-bottom))}
+  .map-page .map-progress {gap:8px;flex:1}
+  .map-page .map-progress strong {font-size:10px}
+  .map-page .map-progress p {font-size:9px;max-width:145px}
+  .map-page .map-footer .progress-ring {width:28px;height:28px}
+  .map-page .map-footer .primary {font-size:11px;padding:11px 14px;min-height:44px}
+  .map-page .map-legend {display:none}
+}
+@media(max-width:360px) {
+  .map-page .map-title h1 {font-size:32px}
+  .map-page .map-footer .progress-ring {display:none}
+  .map-page .map-progress p {display:none}
+  .map-page .map-footer .primary {font-size:10px;padding:10px 12px}
+}
+@media(max-height:700px) {
+  .map-page .nav {padding-top:calc(7px + env(safe-area-inset-top))}
+  .map-page .brand {font-size:18px}
+  .map-page .brand small {display:none}
+  .map-page .map-title {padding-top:9px}
+  .map-page .map-title h1 {font-size:32px}
+  .map-page .map-title .eyebrow {font-size:8px;margin-bottom:4px}
+  .map-page .map-title p:last-child {font-size:10px}
+  .map-page .map-footer {padding:10px 12px;margin-bottom:calc(8px + env(safe-area-inset-bottom))}
+  .map-page .map-progress p {display:none}
+}
+@media(orientation:landscape) and (max-height:550px) {
+  .map-page .nav {padding-top:calc(5px + env(safe-area-inset-top))}
+  .map-page .brand {font-size:16px}
+  .map-page .map-title {padding-top:5px;padding-bottom:0}
+  .map-page .map-title h1 {font-size:27px;margin-bottom:3px}
+  .map-page .map-title h1 br {display:none}
+  .map-page .map-title .eyebrow,.map-page .map-title p:last-child {display:none}
+  .map-page .map-footer {padding:7px 14px;margin-bottom:calc(5px + env(safe-area-inset-bottom))}
+  .map-page .map-footer .primary {min-height:38px;padding:8px 16px}
+  .map-page .map-footer .progress-ring {width:26px;height:26px}
+  .map-page .map-legend {display:none}
+}
