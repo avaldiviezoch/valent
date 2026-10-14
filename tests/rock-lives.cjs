@@ -17,7 +17,7 @@ const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
    await page.touchscreen.tap(box.x+box.width*.68,box.y+box.height*.6);
    await page.clock.runFor(50);
    const lives=await page.locator('#rescue-lives').textContent();
-   if(lives==='♥ 1'){first=true;assert.equal(await page.locator('#rescue-retry').isVisible(),false);assert.match(await page.locator('#sailing-state').textContent(),/Choque/);}
+   if(lives==='♥ 1'){first=true;assert.equal(await page.locator('#rescue-life-count').textContent(),'1');assert.equal(await page.locator('#rescue-lives').getAttribute('aria-label'),'1 vida');const digit=await page.locator('#rescue-life-count').boundingBox();assert(digit.width>0&&digit.x>=0&&digit.x+digit.width<=390,'remaining-life digit is visible on mobile');assert.equal(await page.locator('#rescue-retry').isVisible(),false);assert.match(await page.locator('#sailing-state').textContent(),/Choque/);}
    if(lives==='♥ 0')break;
   }
   assert(first);assert.equal(await page.locator('#rescue-lives').textContent(),'♥ 0');

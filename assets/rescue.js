@@ -259,13 +259,19 @@
     if(!motion.matches)for(let i=0;i<9;i++)sparkles.push({x:game.boat,y:.8,born:clock,vx:(Math.random()-.5)*90});
     tone([523+count*12,659+count*12]);
   }
+  function renderLives(){
+    const lives=String(game.lives);
+    if(el('rescue-life-count').textContent!==lives){
+      el('rescue-life-count').textContent=lives;
+      el('rescue-lives').setAttribute('aria-label',`${lives} ${game.lives===1?'vida':'vidas'}`);
+    }
+  }
   function outcome(event) {
     if(event.type==='spawn')el('sailing-state').textContent='¡Recoge la siguiente cabeza!';
     if(event.type==='catch'||event.type==='win')caught(event.person);
     if(event.type==='rock'){tone([196,247]);el('sailing-state').textContent='¡Choque! Te queda una vida.';}
     if(event.type==='rock'||event.type==='life'||event.type==='miss'){
-      el('rescue-lives').textContent=`♥ ${game.lives}`;
-      el('rescue-lives').setAttribute('aria-label',`${game.lives} ${game.lives===1?'vida':'vidas'}`);
+      renderLives();
     }
     if(event.type==='life'){
       el('sailing-state').textContent='Te queda una vida. ¡Inténtalo otra vez!';
@@ -300,6 +306,7 @@
     if(!game || paused || game.state!=='playing')return;
     const dt=Math.min((now-last)/1000,.05);last=now;clock+=dt;
     const event=game.update(dt,direction);
+    renderLives();
     if(event)outcome(event);
     sparkles=sparkles.filter(p=>clock-p.born<.7);draw();
     if(game.state==='playing'&&!paused)frame=requestAnimationFrame(tick);
@@ -310,7 +317,7 @@
     clearReaction();
     cancelAnimationFrame(frame);game=new FamilyRescueEngine(family);paused=false;held.clear();direction=0;clock=0;sparkles=[];
     story.hidden=true;play.hidden=false;overlay.hidden=true;el('sailing-reward').hidden=true;
-    el('rescue-lives').textContent='♥ 2';el('rescue-lives').setAttribute('aria-label','2 vidas');
+    renderLives();
     el('rescue-pause').disabled=false;el('sailing-score').textContent='0 / 18 a salvo';el('family-count').textContent='0 de 18';
     document.querySelectorAll('#family-roster img').forEach(img=>img.alt='Familiar pendiente de rescate');el('sailing-state').textContent='¡Todos a bordo!';
     document.querySelectorAll('#family-roster li').forEach(li=>li.classList.remove('rescued'));

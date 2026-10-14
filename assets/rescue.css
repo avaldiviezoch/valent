@@ -45,3 +45,5 @@
 @media(max-width:600px){.rescue-story,.rescue-story[data-speaker=lucero]{grid-template-columns:minmax(0,1fr);padding:8px 0 16px}.rescue-story .cast{width:195px;margin-bottom:-23px}.rescue-story .story-dialogue{padding:34px 17px 16px}.rescue-story #dialogue-line{font-size:1rem}}
 @media(max-width:350px){.rescue-story .cast{width:175px}.rescue-story #dialogue-line{font-size:.94rem}}
 #rescue-lives{color:#f1b5a8;white-space:nowrap;font-weight:600}.rescue-hud #sailing-state{min-width:0;flex:1}
+/* A dedicated, non-shrinking digit keeps the remaining life visible. */
+#rescue-lives{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;min-width:40px;line-height:1.2}#rescue-life-count{display:inline-block;min-width:1ch;font-family:var(--sans);font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ivory)}
