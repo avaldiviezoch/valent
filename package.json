@@ -1,0 +1,11 @@
+{
+  "name": "nuestra-aventura",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node tests/experience.cjs && node tests/input.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}
