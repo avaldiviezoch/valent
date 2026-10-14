@@ -29,3 +29,9 @@ obstacle.rocks=[{x:.5,y:.77,radius:.035,speed:0,hit:false}];
 assert.equal(obstacle.update(1/60).type,'rock');assert.notEqual(obstacle.boat,.5);assert(obstacle.cooldown>0);assert.equal(obstacle.state,'playing');
 assert.notEqual(obstacle.update(1/60)?.type,'rock');
 console.log('PASS rock collision knocks the boat back, grants brief recovery and does not bypass family rescue');
+
+const speedCheck=new FamilyRescueEngine(people,()=>.5);
+for(let i=0;i<9;i++)speedCheck.update(.05);
+assert.equal(speedCheck.active.speed,2*(.28+.5*.035));
+assert(speedCheck.rocks.every(rock=>rock.speed===speedCheck.active.speed));
+console.log('PASS heads and rocks travel at exactly twice the previous speed');
