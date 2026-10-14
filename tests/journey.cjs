@@ -8,7 +8,7 @@ const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
  await page.goto(base);
  assert(await page.locator('#voyage-intro').evaluate(e=>e.open));
  assert.match(await page.locator('#voyage-intro-description').textContent(),/14 del mes/);
- assert.match(await page.locator('#voyage-intro').textContent(),/mensaje de amor de tu bebito/);
+ assert.match(await page.locator('#voyage-intro').textContent(),/mensaje de amor de tu Antonio/);
  await page.locator('#voyage-start').click();
  assert.equal(await page.locator('.map-footer,#next,#progress-count').count(),0);
  assert.equal(await page.locator('.island:not(.locked)').count(),1);

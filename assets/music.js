@@ -6,7 +6,7 @@
   if (!map && !game) return;
   const track = new Audio(map ? 'one-piece-episode-1000-special-o.mp3' : '../familia/MUSICA%20DE%20VIDEO%20JUEGO.mp3');
   track.preload = 'metadata';track.loop = false;
-  const level = map ? .35 : .09;
+  const level = map ? .20 : .09;
   track.volume = level;
   let context, attempted = false;
   function unlock() {

@@ -21,7 +21,7 @@
   const lines = [
     ['antonio','Antonio · El malvado','¡He dejado a tu familia a la deriva! A ver si eres capaz de rescatarlos a todos, Lucero…'],
     ['lucero','Lucero · La salvadora','¡Con mi barco nadie se queda atrás! Voy a salvarlos a todos. Familia, ¡allá voy!'],
-    ['antonio','Antonio · El malvado','Tendrás que atrapar a los 18. Si uno cae al mar, habrá que comenzar de nuevo. ¡A ver qué tal navegas!']
+    ['antonio','Antonio · El malvado','Tendrás que atrapar a los 18. Tienes dos vidas: cada caída te quita una. Si pierdes las dos, habrá que comenzar de nuevo. ¡A ver qué tal navegas!']
   ];
   const ending = [
     ['antonio','Antonio · Un malvado enamorado','¡No puede ser! ¡Los salvaste a todos! Te felicito, mi pequeña Lucero. Esta vez me ganaste…'],
@@ -263,12 +263,20 @@
     if(event.type==='spawn')el('sailing-state').textContent='¡Recoge la siguiente cabeza!';
     if(event.type==='catch'||event.type==='win')caught(event.person);
     if(event.type==='rock'){tone([196,247]);el('sailing-state').textContent='¡Cuidado con las rocas!';}
+    if(event.type==='life'||event.type==='miss'){
+      el('rescue-lives').textContent=`♥ ${game.lives}`;
+      el('rescue-lives').setAttribute('aria-label',`${game.lives} ${game.lives===1?'vida':'vidas'}`);
+    }
+    if(event.type==='life'){
+      el('sailing-state').textContent='Te queda una vida. ¡Inténtalo otra vez!';
+      tone([330,392]);
+    }
     if(event.type==='miss') {
       globalThis.ValentGameMusic?.play(true);
       clearReaction();
       direction=0;held.clear();
       el('result-label').textContent='Volvemos a intentarlo';
-      el('result-title').textContent='Un familiar cayó al mar.';
+      el('result-title').textContent='Se acabaron tus dos vidas.';
       el('result-description').textContent=`Rescataste a ${game.rescued.length} de 18. Para ganar hay que recogerlos a todos. La próxima travesía tendrá un orden y posiciones nuevos.`;
       el('rescue-continue').hidden=true;el('rescue-retry').hidden=false;overlay.hidden=false;
       el('rescue-pause').disabled=true;
@@ -282,7 +290,7 @@
       el('asset-status').hidden=true;
       document.querySelector('.cast-seal span').textContent='Familia a salvo';
       el('sailing-reward').hidden=false;tone();burst();
-      story.scrollIntoView({behavior:motion.matches?'auto':'smooth',block:'start'});
+      story.scrollIntoView({behavior:motion.matches?'instant':'smooth',block:'start'});
       el('dialogue-line').setAttribute('tabindex','-1');
       el('dialogue-line').focus({preventScroll:true});
     }
@@ -302,6 +310,7 @@
     clearReaction();
     cancelAnimationFrame(frame);game=new FamilyRescueEngine(family);paused=false;held.clear();direction=0;clock=0;sparkles=[];
     story.hidden=true;play.hidden=false;overlay.hidden=true;el('sailing-reward').hidden=true;
+    el('rescue-lives').textContent='♥ 2';el('rescue-lives').setAttribute('aria-label','2 vidas');
     el('rescue-pause').disabled=false;el('sailing-score').textContent='0 / 18 a salvo';el('family-count').textContent='0 de 18';
     document.querySelectorAll('#family-roster img').forEach(img=>img.alt='Familiar pendiente de rescate');el('sailing-state').textContent='¡Todos a bordo!';
     document.querySelectorAll('#family-roster li').forEach(li=>li.classList.remove('rescued'));

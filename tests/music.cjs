@@ -18,7 +18,7 @@ const assert=require('node:assert/strict');
   await page.locator('#voyage-start').tap();
   await page.waitForFunction(()=>window.__tracks[0]?.currentTime>0);
   assert.match(await page.evaluate(()=>window.__tracks[0].src),/one-piece-episode-1000-special-o.mp3$/);
-  assert.equal(await page.evaluate(()=>(window.__gains[0]?.gain.value??window.__tracks[0].volume).toFixed(2)),'0.35');
+  assert.equal(await page.evaluate(()=>(window.__gains[0]?.gain.value??window.__tracks[0].volume).toFixed(2)),'0.20');
   assert.equal(await page.evaluate(()=>window.__tracks[0].loop),false);
   assert(await page.evaluate(()=>!window.__gains.length||window.__gains[0].context.state==='running'));
   await page.reload();

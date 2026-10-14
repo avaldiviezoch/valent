@@ -44,3 +44,4 @@
 .rescue-story .cast{position:relative;z-index:2;width:270px;max-width:75%;min-height:0;margin:0 auto -28px;align-self:end}.rescue-story .story-dialogue{z-index:1;padding-top:35px;margin:0}.rescue-story .story-dialogue:before{display:none}.rescue-story .story-actions,.rescue-story[data-speaker=lucero] .story-actions{justify-content:center}.rescue-story #dialogue-line{font-size:clamp(1rem,2vw,1.3rem)}
 @media(max-width:600px){.rescue-story,.rescue-story[data-speaker=lucero]{grid-template-columns:minmax(0,1fr);padding:8px 0 16px}.rescue-story .cast{width:195px;margin-bottom:-23px}.rescue-story .story-dialogue{padding:34px 17px 16px}.rescue-story #dialogue-line{font-size:1rem}}
 @media(max-width:350px){.rescue-story .cast{width:175px}.rescue-story #dialogue-line{font-size:.94rem}}
+#rescue-lives{color:#f1b5a8;white-space:nowrap;font-weight:600}.rescue-hud #sailing-state{min-width:0;flex:1}

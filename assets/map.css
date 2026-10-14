@@ -164,3 +164,5 @@ body.map-page {
 }
 
 .voyage-intro h2:focus{outline:none}
+/* Islands remain in the ocean when dragged behind the transparent heading. */
+.map-page .atlas{overflow:visible;overflow-x:clip;overflow-y:visible;z-index:1}
