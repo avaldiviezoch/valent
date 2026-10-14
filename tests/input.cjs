@@ -12,6 +12,6 @@ const assert=require('node:assert/strict');
  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
  const after=await page.locator('#world').evaluate(e=>new DOMMatrix(getComputedStyle(e).transform).a);assert(after>before,'pinch zoom');
  await page.reload();await page.locator('.island').first().focus();await page.keyboard.press('Enter');await page.waitForURL(/encuentro/);console.log('PASS touch pinch, reset, keyboard island navigation');
- await page.goto(base+'/islas/encuentro.html');await page.locator('#sailing-start').tap();await page.locator('[data-steer="arrowleft"]').tap();await page.locator('[data-steer="arrowright"]').tap();assert.match(await page.locator('#sailing-score').textContent(),/0 \/ 5/);console.log('PASS mobile steering controls');
+ await page.goto(base+'/islas/encuentro.html');await page.locator('#dialogue-next').tap();await page.locator('#dialogue-next').tap();await page.locator('#sailing-start').tap();await page.locator('[data-steer="arrowleft"]').tap();await page.locator('[data-steer="arrowright"]').tap();assert.match(await page.locator('#sailing-score').textContent(),/0 \/ 18/);console.log('PASS mobile steering controls');
  await browser.close();
 })().catch(e=>{console.error(e);process.exit(1)});

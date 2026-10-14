@@ -27,9 +27,9 @@ const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
  assert.equal(await page.locator('#voyage-intro').evaluate(e=>e.open),false);
  for(const file of ['ruta-corazon','recuerdos','aventuras','constelacion','tesoro']){await page.goto(base+'/islas/'+file+'.html');await page.waitForURL(/index.html/);assert.equal(await page.locator('.island:not(.locked)').count(),1);}
  await page.locator('#menu-toggle').click();await page.locator('#show-intro').click();assert(await page.locator('#voyage-intro').evaluate(e=>e.open));await page.locator('#voyage-start').click();
- await page.locator('.island').first().click();await page.waitForURL(/encuentro.html/);assert(await page.locator('#sailing-start').isVisible());assert.equal(await page.locator('#lantern').count(),0);
+ await page.locator('.island').first().click();await page.waitForURL(/encuentro.html/);await page.locator('#dialogue-next').click();await page.locator('#dialogue-next').click();assert(await page.locator('#sailing-start').isVisible());assert.equal(await page.locator('#lantern').count(),0);
  assert.match(await page.locator('#sailing-reward').textContent(),/Tu bebito/);
- await page.locator('#sailing-start').click();assert.equal(await page.locator('#sailing-overlay').isVisible(),false);
+ await page.locator('#sailing-start').click();assert.equal(await page.locator('#rescue-story').isVisible(),false);
  assert.deepEqual(errors,[]);console.log('PASS mesario notice, hamburger menu, five grayscale locks, direct URL guards, old progress isolation and sailing as game 1');
  await browser.close();
 })().catch(e=>{console.error(e);process.exit(1)});
