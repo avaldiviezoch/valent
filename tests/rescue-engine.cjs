@@ -35,3 +35,20 @@ for(let i=0;i<9;i++)speedCheck.update(.05);
 assert.equal(speedCheck.active.speed,2*(.28+.5*.035));
 assert(speedCheck.rocks.every(rock=>rock.speed===speedCheck.active.speed));
 console.log('PASS heads and rocks travel at exactly twice the previous speed');
+
+const retry=new FamilyRescueEngine(people,()=>.5);
+let failedId,lifeEvents=0;
+for(let i=0;i<10000&&retry.state==='playing';i++){
+ if(retry.active)retry.target=retry.active.x>.5?.09:.91;
+ const event=retry.update(1/60);
+ if(event?.type==='life'){lifeEvents++;failedId=event.person.id;assert.equal(retry.lives,1);assert.equal(retry.state,'playing');}
+ if(event?.type==='spawn'&&failedId)assert.equal(event.person.id,failedId,'missed family member comes back');
+}
+assert.equal(lifeEvents,1);assert.equal(retry.lives,0);assert.equal(retry.state,'lost');
+const comeback=new FamilyRescueEngine(people,()=>.5);let spent=false;
+for(let i=0;i<10000&&comeback.state==='playing';i++){
+ if(comeback.active)comeback.target=spent?comeback.active.x:.09;
+ const event=comeback.update(1/60);if(event?.type==='life')spent=true;
+}
+assert(spent);assert.equal(comeback.state,'won');assert.equal(comeback.rescued.length,18);assert.equal(comeback.lives,1);
+console.log('PASS exactly two lives, first miss continues, second loses, missed family returns and all 18 can still be saved');

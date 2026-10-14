@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "test": "node tests/rescue-engine.cjs && node tests/rescue-layout.cjs && node tests/rescue-dialogue.cjs && node tests/rescue-loading.cjs && node tests/music.cjs && node tests/journey.cjs && node tests/experience.cjs && node tests/input.cjs",
+    "test": "node tests/rescue-engine.cjs && node tests/rescue-layout.cjs && node tests/rescue-dialogue.cjs && node tests/rescue-loading.cjs && node tests/music.cjs && node tests/journey.cjs && node tests/map-overflow.cjs && node tests/experience.cjs && node tests/input.cjs",
     "test:islands": "node tests/islands.cjs",
     "test:responsive": "node tests/responsive.cjs",
     "test:water": "node tests/water.cjs",

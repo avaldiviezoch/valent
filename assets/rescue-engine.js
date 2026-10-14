@@ -13,6 +13,7 @@ globalThis.FamilyRescueEngine = class FamilyRescueEngine {
       [this.order[i], this.order[j]] = [this.order[j], this.order[i]];
     }
     this.rescued = [];
+    this.lives = 2;
     this.boat = .5;
     this.target = .5;
     this.wait = .4;
@@ -62,8 +63,12 @@ globalThis.FamilyRescueEngine = class FamilyRescueEngine {
       return {type:this.state === 'won' ? 'win' : 'catch',person:head.person};
     }
     if (head.y > .85) {
-      this.state = 'lost';
-      return {type:'miss',person:head.person};
+      this.lives--;
+      this.active = null;
+      this.wait = .45;
+      if (this.lives === 0) this.state = 'lost';
+      // The missed family member returns: victory still requires all 18.
+      return {type:this.lives ? 'life' : 'miss',person:head.person};
     }
     return null;
   }

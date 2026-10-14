@@ -23,15 +23,18 @@ const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
   assert.equal(await page.evaluate(()=>localStorage.getItem('valent-rescate-familia-v1')),null);
   assert.equal(await page.locator('.character-sway').first().evaluate(e=>getComputedStyle(e).animationName),'none');
   const box=await page.locator('#sailing-canvas').boundingBox();
-  // Deliberately miss the first family member. No reward or saved win is allowed.
-  for(let i=0;i<35;i++){
+  // Two missed catches consume the two lives; a first miss must not end the game.
+  let survivedFirstMiss=false;
+  for(let i=0;i<65;i++){
    await page.clock.runFor(200);const head=await page.evaluate(()=>window.__head);
    if(head)await page.locator('#sailing-canvas').dispatchEvent('pointermove',{clientX:box.x+(head.x>box.width/2?0:box.width),clientY:box.y+20,pointerType:'mouse'});
+   if((await page.locator('#rescue-lives').textContent()).includes('1')){survivedFirstMiss=true;assert(!(await page.locator('#rescue-retry').isVisible()));}
    if(await page.locator('#rescue-retry').isVisible())break;
   }
+  assert(survivedFirstMiss);assert.equal(await page.locator('#rescue-lives').textContent(),'♥ 0');
   assert(await page.locator('#rescue-retry').isVisible());assert.equal(await page.locator('#sailing-reward').isVisible(),false);
   assert.equal(await page.evaluate(()=>localStorage.getItem('valent-rescate-familia-v1')),null);
-  await page.locator('#rescue-retry').click();await page.locator('#rescue-pause').click();
+  await page.locator('#rescue-retry').click();assert.equal(await page.locator('#rescue-lives').textContent(),'♥ 2');await page.locator('#rescue-pause').click();
   const score=await page.locator('#sailing-score').textContent();await page.clock.runFor(1500);assert.equal(await page.locator('#sailing-score').textContent(),score);
   await page.locator('#rescue-continue').click();
   let won=false;const reactions=new Set();
@@ -49,7 +52,7 @@ const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
   assert.equal(await page.evaluate(()=>window.__musicCalls.filter(Boolean).length),4,'music restarts on start, loss, retry and win');
   assert(won,'all 18 family members can be saved');assert.equal(await page.locator('#family-roster .rescued').count(),18);
   assert.match(await page.locator('#sailing-reward').textContent(),/Tu bebito, Antonio/);
-  assert(await page.locator('#rescue-story').isVisible());await page.locator('#dialogue-next').click();assert.match(await page.locator('#speaker').textContent(),/Lucero/);
+  assert(await page.locator('#rescue-story').isVisible());await page.locator('#dialogue-next').evaluate(e=>e.scrollIntoView({behavior:'instant',block:'center'}));await page.clock.runFor(100);await page.locator('#dialogue-next').click();assert.match(await page.locator('#speaker').textContent(),/Lucero/);
   assert(!(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)));
   await page.locator('#rescue-save').click();await page.waitForURL(/index.html/);
   assert.equal(await page.locator('.island.complete').count(),1);assert.equal(await page.locator('.island.locked').count(),5);
