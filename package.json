@@ -6,7 +6,8 @@
     "test": "node tests/journey.cjs && node tests/experience.cjs && node tests/input.cjs",
     "test:islands": "node tests/islands.cjs",
     "test:responsive": "node tests/responsive.cjs",
-    "test:water": "node tests/water.cjs"
+    "test:water": "node tests/water.cjs",
+    "test:colors": "node tests/locked-colors.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"
