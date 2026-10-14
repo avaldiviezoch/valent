@@ -23,6 +23,11 @@ globalThis.FamilyRescueEngine = class FamilyRescueEngine {
     this.rockMinRadius = .025;this.boatRadius = .028;
     this.state = 'playing';
   }
+  loseLife(reason, person) {
+    this.lives = Math.max(0,this.lives-1);
+    if (this.lives === 0) this.state = 'lost';
+    return {type:this.lives ? (reason === 'rock' ? 'rock' : 'life') : 'miss',reason,person};
+  }
   update(dt, direction = 0) {
     if (this.state !== 'playing') return null;
     dt = Math.min(Math.max(dt, 0), .05);
@@ -32,11 +37,11 @@ globalThis.FamilyRescueEngine = class FamilyRescueEngine {
     this.cooldown = Math.max(0,this.cooldown-dt);
     for (const rock of this.rocks) {
       rock.y += rock.speed * dt;
-      if (!rock.hit && this.cooldown === 0 && Math.abs(rock.y-.77)<.055 && Math.abs(rock.x-this.boat)<Math.max(rock.radius,this.rockMinRadius)+this.boatRadius) {
+      if (!rock.hit && Math.abs(rock.y-.77)<.055 && Math.abs(rock.x-this.boat)<Math.max(rock.radius,this.rockMinRadius)+this.boatRadius) {
         rock.hit = true;this.cooldown = 1.2;
         this.boat = clamp(this.boat+(this.boat<rock.x?-.07:.07));
         this.target = this.boat;
-        return {type:'rock'};
+        return this.loseLife('rock');
       }
     }
     this.rocks = this.rocks.filter(rock=>rock.y<1.15);
@@ -63,12 +68,10 @@ globalThis.FamilyRescueEngine = class FamilyRescueEngine {
       return {type:this.state === 'won' ? 'win' : 'catch',person:head.person};
     }
     if (head.y > .85) {
-      this.lives--;
       this.active = null;
       this.wait = .45;
-      if (this.lives === 0) this.state = 'lost';
       // The missed family member returns: victory still requires all 18.
-      return {type:this.lives ? 'life' : 'miss',person:head.person};
+      return this.loseLife('family',head.person);
     }
     return null;
   }
