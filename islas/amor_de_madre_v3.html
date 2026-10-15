@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#082b38"><meta name="robots" content="noindex,nofollow">
+  <title>La isla del amor de madre · Desarrollo v3</title>
+  <link rel="stylesheet" href="../assets/experience.css?v=5"><link rel="stylesheet" href="../assets/ocean-motion.css?v=5">
+  <link rel="stylesheet" href="../assets/rescue.css?v=7"><link rel="stylesheet" href="../assets/mother-v3.css?v=1">
+  <script defer src="../assets/ocean.js?v=5"></script><script defer src="../assets/journey-v3.js?v=1"></script><script defer src="../assets/experience-v3.js?v=1"></script>
+  <script defer src="../assets/music.js?v=3"></script><script defer src="../assets/dialogue-v2.js?v=1"></script>
+  <script defer src="../assets/mother-v3-portraits.js?v=1"></script><script defer src="../assets/mother-v3-engine.js?v=1"></script><script defer src="../assets/mother-v3.js?v=1"></script>
+</head>
+<body data-island="2" data-page="rescue" data-game="mother" data-development="true" data-phase="intro">
+<div class="ocean" aria-hidden="true"></div><div class="grain" aria-hidden="true"></div>
+<header class="nav"><a class="back" href="../index_v3.html">← Volver al mapa</a><span class="chapter">Desarrollo v3 · Isla III</span></header>
+<main class="page mother-page">
+  <div class="page-intro"><p class="eyebrow">Capítulo III · La isla del amor de madre</p><h1>El tablero pirata<br>de los tóxicos.</h1><p>Treinta casillas en cubierta. Solo tú puedes ayudar a estas mamás.</p></div>
+  <section class="rescue-story mother-dialogue" id="mother-story" aria-label="La historia de la isla del amor de madre">
+    <div class="cast">
+      <div class="cast-member" data-actor="antonio"><button class="character" aria-label="Animar a Antonio"><span class="character-sway"><img src="../familia/ANTONIO_EL_MALVADO.png" alt="Antonio, el malvado" width="1145" height="1374"></span></button></div>
+      <div class="cast-member" data-actor="lucero" hidden><button class="character" aria-label="Animar a Lucero"><span class="character-sway"><img src="../familia/LUCERO_LA_SALVADORA.png" alt="Lucero, la salvadora" width="1145" height="1374"></span></button></div>
+    </div>
+    <div class="story-dialogue"><p class="eyebrow" data-speaker-name>Antonio · El malvado</p><p class="mother-line" data-dialogue-line aria-hidden="true"><span data-dialogue-copy></span></p><p class="sr-only" data-dialogue-announcement role="status" aria-live="polite" aria-atomic="true"></p></div>
+    <div class="story-actions"><button class="primary" data-dialogue-next>Continuar →</button></div>
+  </section>
+  <section id="mother-play" hidden aria-label="El tablero pirata de los tóxicos">
+    <div class="mother-heading"><div><p class="eyebrow">La isla del amor de madre</p><h2>El tablero pirata</h2></div><span class="round-tag" id="mother-level">Nivel 1 / 3</span></div>
+    <ol class="mother-rounds" aria-label="Tres niveles"><li data-level="1" aria-current="step"><span>01</span>800 ms</li><li data-level="2"><span>02</span>750 ms</li><li data-level="3"><span>03</span>700 ms</li></ol>
+    <div class="mother-stats" aria-label="Estado del tablero"><div><span>Mamás al mando</span><strong id="mother-count">0 / 30</strong></div><div><span>Niños traviesos</span><strong id="child-count">0 / 30</strong></div><div><span>Tiempo</span><strong id="mother-time">00:00</strong></div></div>
+    <div class="mother-deck"><div class="mother-board" id="mother-board" role="group" aria-label="Cubierta de treinta casillas. Toca para poner a mamá al mando."></div><span class="deck-caption" aria-hidden="true">El amor siempre encuentra el rumbo</span></div>
+    <div class="mother-progress-label"><span>La calma vuelve a cubierta</span><strong id="mother-percent">0%</strong></div><div class="mother-progress" id="mother-progress" role="progressbar" aria-label="Casillas bajo el cuidado de mamá" aria-valuemin="0" aria-valuemax="30" aria-valuenow="0"><div id="mother-fill"></div></div>
+    <div class="mother-controls"><button class="secondary" id="mother-pause">Pausar</button><button class="secondary" id="mother-restart">Reiniciar nivel</button></div>
+    <p class="mother-help">Toca una casilla libre o un Hijo para poner a Mamá. Llena las 30 antes de que los niños ocupen todo.</p>
+    <p id="mother-status" class="sr-only" role="status" aria-live="polite"></p>
+  </section>
+  <section class="reward mother-reward" id="mother-reward" hidden><p class="eyebrow">Tres niveles · Un amor que puede con todo</p><h2 tabindex="-1">La calma vuelve a la isla.</h2><p>Mi pequeña Lucero, hasta en medio del caos encuentras la forma de cuidar a quienes amas. Este juego es otra pequeña excusa para verte sonreír, para compartir un ratito contigo y para recordarte lo especial que eres para mí.</p><p>Gracias por ser mi compañera de aventuras. Nos esperan más islas, más retos y muchos más momentos juntos.</p><p><strong>Con todo mi amor, tu Antonio ♡</strong></p><a class="primary" href="../index_v3.html?isla=3">Volver a nuestras islas →</a><button class="secondary" id="mother-replay">Volver a jugar los tres niveles</button></section>
+</main>
+<div class="mother-modal" id="mother-modal" role="dialog" aria-modal="true" aria-labelledby="mother-modal-title" aria-describedby="mother-modal-copy" hidden><div class="mother-panel"><p class="eyebrow" id="mother-modal-label"></p><h2 id="mother-modal-title"></h2><p id="mother-modal-copy"></p><button class="primary" id="mother-modal-action">Continuar</button><button class="secondary" id="mother-modal-cancel" hidden>Seguir jugando</button></div></div>
+<div class="toast" id="toast" role="status"></div>
+</body></html>
