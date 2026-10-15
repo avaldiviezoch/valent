@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#082b38"><meta name="robots" content="noindex,nofollow">
+  <title>La torre de Gizmo · Desarrollo v2</title>
+  <link rel="stylesheet" href="../assets/experience.css?v=5"><link rel="stylesheet" href="../assets/ocean-motion.css?v=5">
+  <link rel="stylesheet" href="../assets/rescue.css?v=7"><link rel="stylesheet" href="../assets/stack-v2.css?v=1">
+  <script defer src="../assets/ocean.js?v=5"></script><script defer src="../assets/experience.js?v=7"></script>
+  <script defer src="../assets/music.js?v=3"></script><script defer src="../assets/dialogue-v2.js?v=1"></script>
+  <script defer src="../assets/stack-v2-engine.js?v=1"></script><script defer src="../assets/stack-v2.js?v=1"></script>
+</head>
+<body data-page="rescue" data-game="stack" data-development="true">
+<div class="ocean" aria-hidden="true"></div><div class="grain" aria-hidden="true"></div>
+<header class="nav"><a class="back" href="../index.html">← Volver al mapa</a><span class="chapter">Vista de desarrollo · v2</span></header>
+<main class="page tower-page">
+  <div class="page-intro"><p class="eyebrow">Isla II · El próximo capítulo</p><h1>La torre de Gizmo.</h1><p>Veinte pisos sobre el mar. Un pequeño tesoro esperando por ti.</p></div>
+  <section class="rescue-story tower-dialogue" id="tower-story" aria-label="La historia del rescate de Gizmo">
+    <div class="cast">
+      <div class="cast-member" data-actor="antonio"><button class="character" aria-label="Animar a Antonio"><span class="character-sway"><img src="../familia/ANTONIO_EL_MALVADO.png" alt="Antonio, el malvado" width="1145" height="1374"></span></button></div>
+      <div class="cast-member" data-actor="lucero" hidden><button class="character" aria-label="Animar a Lucero"><span class="character-sway"><img src="../familia/LUCERO_LA_SALVADORA.png" alt="Lucero, la salvadora" width="1145" height="1374"></span></button></div>
+      <div class="cast-member" data-actor="gizmo" hidden><button class="character" aria-label="Saludar a Gizmo"><span class="character-sway"><img src="../familia/gizmo.png" alt="Gizmo, el perrito de Lucero" width="1207" height="1303"></span></button></div>
+    </div>
+    <div class="story-dialogue"><p class="eyebrow" data-speaker-name>Antonio · El malvado</p><p class="tower-line" data-dialogue-line aria-hidden="true"><span data-dialogue-copy></span></p><p class="sr-only" data-dialogue-announcement role="status" aria-live="polite" aria-atomic="true"></p></div>
+    <div class="story-actions"><button class="primary" data-dialogue-next>Continuar →</button></div>
+  </section>
+  <section id="tower-play" hidden aria-label="Construir veinte pisos para rescatar a Gizmo">
+    <div class="tower-hud"><span id="tower-count" role="status">0 / 20 pisos</span><span id="tower-feedback" aria-live="polite">Tu torre comienza aquí.</span><button id="tower-pause" class="secondary" aria-label="Pausar la torre">Pausa</button></div>
+    <div class="tower-stage">
+      <div class="gizmo-lookout"><img src="../familia/gizmo.png" alt="Gizmo espera en la cima" width="1207" height="1303"><div><span class="eyebrow">El tesoro de Lucero</span><strong>Gizmo te espera arriba.</strong></div></div>
+      <canvas id="tower-canvas" tabindex="0" role="img" aria-label="Bloques de una torre pirata se mueven alternando dos direcciones. Pulsa Colocar piso o Espacio para apilarlos. Las partes sin apoyo caen al mar."></canvas>
+      <div class="tower-overlay" id="tower-overlay" hidden><div><p class="eyebrow" id="tower-result-label"></p><h2 id="tower-result-title" tabindex="-1"></h2><p id="tower-result-copy"></p><button class="primary" id="tower-resume">Continuar</button><button class="primary" id="tower-retry" hidden>Volver a construir →</button></div></div>
+    </div>
+    <button class="primary tower-place" id="tower-place">Colocar piso <span aria-hidden="true">↓</span></button>
+    <p class="tower-help">Toca para colocar · Espacio o Enter en teclado · Alinea los 20 pisos</p>
+  </section>
+  <section class="reward tower-reward" id="tower-reward" hidden>
+    <p class="eyebrow">Un pequeño tesoro, un amor enorme</p><h2 tabindex="-1">Gizmo vuelve a casa.</h2>
+    <p>Mi pequeña Lucero, hoy construiste una torre para rescatar a tu compañero de aventuras. Yo quiero seguir construyendo contigo algo todavía más bonito, piso a piso, mesario a mesario. Gracias por llenar de amor hasta los retos más pequeños.</p>
+    <p><strong>Con todo mi amor, tu Antonio ♡</strong></p>
+    <button class="primary" id="tower-replay">Volver a jugar →</button>
+  </section>
+  <p id="tower-assets" class="sr-only" role="status">Preparando los personajes…</p>
+  <button id="tower-load-retry" class="secondary" hidden>Volver a cargar las imágenes</button>
+</main><div class="toast" id="toast" role="status"></div>
+</body></html>
