@@ -1,0 +1,4 @@
+/* Completion stays visible, but only the current unfinished island is playable. */
+.map-page .island.complete.locked .marker{fill:#526c54;stroke:#cad4ac}
+.map-page .island.complete.locked .check{fill:#f0ebca}
+.map-page .island.complete.locked .label-bg{stroke:#b8c99a66}
