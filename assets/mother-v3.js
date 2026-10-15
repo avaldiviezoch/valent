@@ -44,10 +44,13 @@
     if(event.key in targets){event.preventDefault();buttons[Math.max(0,Math.min(29,targets[event.key]))].focus();}
   });
   function token(value){
-    const config=PirateMotherPortraits[value===1?'mother':'child'],slot=document.createElement('span');slot.className='portrait-slot';slot.setAttribute('aria-hidden','true');
+    const portraits=PirateMotherPortraits.levels[game.level-1];
+    // Select once per new appearance, never on unrelated counter updates.
+    const config=value===1?portraits.mother:portraits.children[Math.floor(Math.random()*portraits.children.length)];
+    const slot=document.createElement('span');slot.className='portrait-slot';slot.setAttribute('aria-hidden','true');slot.dataset.person=config.name||config.label;
     const initial=document.createElement('span');initial.className='portrait-initial';initial.textContent=config.initial;slot.append(initial);
     if(config.src){
-      const image=new Image();image.alt='';image.src=config.src;image.addEventListener('load',()=>{initial.hidden=true;});image.addEventListener('error',()=>{image.remove();initial.hidden=false;});slot.append(image);
+      const image=new Image();image.alt='';image.decoding='async';image.addEventListener('load',()=>{initial.hidden=true;slot.classList.add('has-portrait');});image.addEventListener('error',()=>{image.remove();initial.hidden=false;slot.classList.remove('has-portrait');});image.src=config.src;slot.append(image);
     }
     const caption=document.createElement('span');caption.className='token-caption';caption.textContent=config.label;caption.setAttribute('aria-hidden','true');return [slot,caption];
   }
@@ -59,7 +62,8 @@
       const value=game.cells[i];if(value===previous[i])return;
       button.className='mother-cell'+(value===1?' is-mother':value===2?' is-child':'')+(value?' is-changed':'');
       button.replaceChildren(...(value?token(value):[]));
-      button.setAttribute('aria-label',`Casilla ${i+1}: ${value===1?'mamá al mando':value===2?'hijo travieso':'cubierta libre'}`);previous[i]=value;
+      const name=button.querySelector('.portrait-slot')?.dataset.person;
+      button.setAttribute('aria-label',`Casilla ${i+1}: ${value===1?'mamá al mando':value===2?'hijo travieso':'cubierta libre'}${name?' · '+name:''}`);previous[i]=value;
     });
     renderTime();
   }
