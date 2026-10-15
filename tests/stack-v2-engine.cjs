@@ -2,6 +2,7 @@ const assert=require('node:assert/strict');
 require('../assets/stack-v2-engine.js');
 const perfect=new PirateStack(()=>.5);
 for(let i=1;i<=20;i++){
+ assert.equal(perfect.speed,2*(5.8+(i-1)*.22));
  assert.equal(perfect.axis,i%2?'x':'z');perfect.offset=0;
  const event=perfect.place();assert.equal(event.level,i);assert(event.perfect);
  assert.equal(perfect.blocks.at(-1).w,10);assert.equal(perfect.blocks.at(-1).d,10);

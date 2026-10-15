@@ -11,7 +11,7 @@ globalThis.PirateStack = class PirateStack {
     this.axis=this.level%2===0?'x':'z';
     this.direction=this.random()<.5?1:-1;
     this.offset=-this.direction*12;
-    this.speed=5.8+this.level*.22;
+    this.speed=2*(5.8+this.level*.22);
   }
   update(dt){
     if(this.state!=='playing')return;
