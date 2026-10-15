@@ -1,8 +1,16 @@
 """Copy production into isolated development routes; never overwrite production."""
 from pathlib import Path
 import re
+from PIL import Image
 
 ROOT=Path(__file__).resolve().parents[1]
+
+# Production never disabled the first island, so this neutral terrain is new.
+terrain=Image.open(ROOT/'assets/island.webp').convert('RGBA')
+gray=terrain.convert('L')
+locked=Image.merge('RGBA',(gray,gray,gray,terrain.getchannel('A')))
+locked.thumbnail((600,400),Image.Resampling.LANCZOS)
+locked.save(ROOT/'assets/island-locked.webp',lossless=True,method=6)
 
 def write(name,text):
     (ROOT/name).write_text(text,encoding='utf-8',newline='\n')
