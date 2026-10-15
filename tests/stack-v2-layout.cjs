@@ -3,6 +3,7 @@ const assert=require('node:assert/strict');
 (async()=>{
  const browser=await chromium.launch();const page=await browser.newPage({viewport:{width:390,height:844}});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.addInitScript(()=>localStorage.setItem('valent-development-island-1-v1','complete'));
  await page.goto('http://127.0.0.1:8765/islas/encuentro_v2.html');
  await page.waitForTimeout(160);const initial=await page.locator('[data-dialogue-copy]').textContent();
  assert(initial.length>0&&initial.length<100,'opening dialogue types progressively');

@@ -1,6 +1,7 @@
-/* A development chapter: no production routing, unlocking or saved progress. */
+/* Second island of the development journey; production progress is read-only. */
 (() => {
   'use strict';
+  if(globalThis.DevelopmentJourney&&!DevelopmentJourney.available(1))return;
   const byId=id=>document.getElementById(id);
   const motion=matchMedia('(prefers-reduced-motion: reduce)');
   const story=byId('tower-story'),play=byId('tower-play'),canvas=byId('tower-canvas');
@@ -146,6 +147,7 @@
       byId('tower-feedback').textContent=event.perfect?'¡Perfecto! Piso completo.':`Piso ${game.level}. ¡Seguimos subiendo!`;
       tone(event.perfect?[659,784]:[440,523]);
       if(event.type==='win'){
+        globalThis.DevelopmentJourney?.complete(1);
         cancelAnimationFrame(raf);byId('tower-place').disabled=true;byId('tower-pause').disabled=true;
         camera=Math.max(0,game.level*layer-height*.42);byId('tower-feedback').textContent='¡Llegaste a Gizmo!';
         burst();setTimeout(ending,motion.matches?0:1100);
@@ -163,7 +165,7 @@
     else{globalThis.ValentGameMusic?.play();last=performance.now();raf=requestAnimationFrame(tick);byId('tower-place').focus({preventScroll:true});}
   }
   canvas.addEventListener('click',place);byId('tower-place').addEventListener('click',place);
-  byId('tower-retry').addEventListener('click',start);byId('tower-replay').addEventListener('click',start);
+  byId('tower-retry').addEventListener('click',start);byId('tower-return').addEventListener('click',()=>{location.href='../index_v2.html?isla=2';});
   byId('tower-pause').addEventListener('click',()=>pause(true));byId('tower-resume').addEventListener('click',()=>pause(false));
   document.addEventListener('keydown',event=>{
     if(event.key==='Escape'&&game?.state==='playing'&&!play.hidden){event.preventDefault();pause(!paused);return;}

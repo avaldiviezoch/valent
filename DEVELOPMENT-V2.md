@@ -1,27 +1,48 @@
-# La torre de Gizmo · desarrollo
+# Nuestra aventura · desarrollo v2
 
-La siguiente isla se prepara en `islas/encuentro_v2.html`. Su nombre de trabajo es **La torre de Gizmo**. Esta ruta se puede publicar como vista previa independiente, pero no sustituye `islas/encuentro.html`, no modifica el mapa y no activa ni completa capítulos de producción.
+El mapa completo de desarrollo está en **`index_v2.html`**. Es una copia de producción con progreso separado y dos juegos preparados:
 
-## Juego
+| Isla | Ruta de desarrollo | Estado |
+| --- | --- | --- |
+| Izar las velas | `islas/rescate_v2.html` | Disponible si no se ha completado |
+| La torre de Gizmo | `islas/encuentro_v2.html` | Disponible tras completar la primera |
+| Nuestros recuerdos | `islas/recuerdos_v2.html` | En preparación |
+| La luz de encontrarnos | `islas/aventuras_v2.html` | En preparación |
+| Un cielo para dos | `islas/constelacion_v2.html` | En preparación |
+| Nuestro tesoro | `islas/tesoro_v2.html` | En preparación |
 
-Se adapta la mecánica del archivo entregado `pure_css_stack_juego.html`: bloques isométricos que se desplazan alternando dos ejes, alineación al tocar y recorte de lo que queda sin apoyo. La versión de desarrollo utiliza HTML/CSS y Canvas con JavaScript para poder integrar el objetivo de **20 pisos**, pausa, controles accesibles y los diálogos. No añade dependencias ni servicios externos.
+`index.html`, `islas/encuentro.html` y sus recursos de producción no se modifican. Compartimos los recursos visuales, música, retratos originales y motores del juego; el mapa, las rutas y el guardado de desarrollo usan sus propios archivos.
 
-La ambientación usa la textura de mar existente, piedra envejecida, madera e hierro. Los PNG originales de Antonio, Lucero y `familia/gizmo.png` se conservan sin cambios. Gizmo aparece al iniciar la partida y da las gracias a mamá al alcanzar la cima; después conversan Antonio y Lucero y aparece la carta final.
+## Progreso
 
-La música reutiliza el MP3 local de juego y su volumen de producción. La página no tiene `data-island`, por lo que puede probarse antes de la fecha del segundo mesario sin alterar los bloqueos existentes. No escribe progreso en `localStorage` ni permite guardar la segunda isla como completada.
+`assets/journey-v2.js` define los seis capítulos y sus claves `valent-development-island-N-v1`. Las victorias se guardan automáticamente en el mismo navegador al completar el juego, antes de volver al mapa. Una isla completada muestra ✓, se ve desactivada y ya no permite volver a jugar, tampoco mediante un enlace directo. El siguiente capítulo solo se puede abrir si está preparado y se han completado todos los anteriores.
+
+Si la primera aventura ya está guardada en producción mediante `valent-rescate-familia-v1`, se importa ese recuerdo una sola vez al progreso de desarrollo. No se importan victorias de antiguas demostraciones. Los juegos de desarrollo nunca escriben progreso de producción. Al cerrar y abrir el navegador, el avance se conserva mientras su almacenamiento local siga disponible.
+
+Las dos primeras islas están habilitadas para esta revisión de desarrollo. Las otras cuatro siguen con `ready: false`; aunque se termine Gizmo no se activan juegos antiguos sin preparar. Para futuros capítulos se mantiene también la fecha del mesario en America/Lima.
+
+## Copia de producción
+
+`python scripts/build-development-v2.py` regenera el mapa, el runtime compartido, el rescate y las cuatro rutas futuras a partir de producción. El generador escribe solo rutas de desarrollo; mantiene los cambios de progresión y el guardado automático. `encuentro_v2.html` y el juego de la torre se desarrollan de forma independiente.
+
+## La torre de Gizmo
+
+Adapta la mecánica de `pure_css_stack_juego.html`: bloques isométricos en dos ejes, recorte de bordes sin apoyo y veinte pisos. Los bloques van al doble de su velocidad inicial. HTML/CSS y Canvas permiten integrar pausa, controles táctiles/teclado y diálogos sin bibliotecas adicionales. La ambientación usa mar, piedra, madera e hierro. Gizmo aparece al comenzar, da las gracias a mamá al llegar al piso 20 y después conversan Antonio y Lucero.
 
 ## Verificación
 
-Con el servidor local existente:
+Con el servidor local existente y Playwright:
 
 ```sh
+node tests/journey-v2-state.cjs
+node tests/journey-v2.cjs
 node tests/stack-v2-engine.cjs
 node tests/stack-v2-layout.cjs
 node tests/stack-v2.cjs
 ```
 
-Se verifican intersecciones en ambos ejes, bordes que caen, alineaciones perfectas, derrota, exactamente 20 pisos, pausa, reintento, teclado, toque, diálogos iniciales/finales, movimiento reducido y ausencia de progreso de producción. La partida completa se prueba en Chromium de escritorio, Chromium móvil y WebKit móvil.
+El primer juego también se verifica con `VALENT_DEVELOPMENT=1 node tests/experience.cjs` (en PowerShell: `$env:VALENT_DEVELOPMENT='1'` antes de ejecutar Node). Las pruebas cubren migración, progreso en orden, derrota sin guardado, victoria con guardado automático, recarga, islas completadas desactivadas, rutas directas bloqueadas y ausencia de escrituras de producción, en Chromium y WebKit.
 
-## Paso a producción
+## Promoción
 
-Primero se revisa esta vista previa con el usuario. Solo después de su aprobación se prepara la ruta definitiva de la segunda isla y se actualizan su nombre y configuración en el mapa. El primer rescate de la familia debe conservarse. La configuración del mesario y el guardado definitivo se incorporan en esa promoción, no en esta vista de desarrollo.
+Solo se actualizan las rutas y el mapa de producción cuando el usuario apruebe el conjunto de desarrollo. El primer rescate debe conservarse y la torre ocupar la segunda isla.

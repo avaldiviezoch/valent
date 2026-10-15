@@ -9,6 +9,7 @@ const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
   await page.clock.install();
   // Observe the actual model's moving position; all placement uses real UI.
   await page.addInitScript(()=>{
+   localStorage.setItem('valent-development-island-1-v1','complete');
    let Original;
    Object.defineProperty(window,'PirateStack',{configurable:true,get(){return Original;},set(Engine){
     Original=class extends Engine{constructor(...args){super(...args);window.__stack=this;}};
@@ -51,7 +52,10 @@ const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
   assert.equal(await page.evaluate(()=>localStorage.getItem('valent-ruta-personal-v1')),null);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   assert.deepEqual(errors,[]);
-  await page.locator('#tower-replay').click();assert.equal(await page.locator('#tower-count').textContent(),'0 / 20 pisos');
+  assert.equal(await page.evaluate(()=>localStorage.getItem('valent-development-island-2-v1')),'complete');
+  await page.locator('#tower-return').click();await page.waitForURL(/index_v2.html/);
+  assert.equal(await page.locator('.island.complete').count(),2);assert.equal(await page.locator('.island[aria-disabled="false"]').count(),0);
+  await page.reload();assert.equal(await page.locator('.island.complete').count(),2);
   console.log(`PASS v2 ${engine.name()} ${mobile?'mobile':'desktop'}: dialogue, Gizmo, pause, loss, retry, 20 placements, ending and production progress isolation`);
   await browser.close();
  }

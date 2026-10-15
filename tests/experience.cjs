@@ -1,6 +1,8 @@
 const {chromium,webkit}=require('playwright');
 const assert=require('node:assert/strict');
 const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
+const dev=process.env.VALENT_DEVELOPMENT==='1';
+const completionKey=dev?'valent-development-island-1-v1':'valent-rescate-familia-v1';
 (async()=>{
  for(const [engine,viewport,mobile] of [[chromium,{width:1440,height:900},false],[chromium,{width:390,height:844},true],[webkit,{width:390,height:844},true]]){
   const browser=await engine.launch({headless:true});
@@ -15,12 +17,12 @@ const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
     return draw.call(this,img,...args);
    };
   });
-  await page.goto(base+'/islas/encuentro.html');
+  await page.goto(base+'/islas/'+(dev?'rescate_v2':'encuentro')+'.html');
   await page.evaluate(()=>{window.__musicCalls=[];const original=ValentGameMusic.play;ValentGameMusic.play=function(restart=false){window.__musicCalls.push(restart);return original.call(this,restart);};});
   await page.locator('#dialogue-next').click();assert.match(await page.locator('#speaker').textContent(),/Lucero/);
   await page.locator('#dialogue-next').click();await page.locator('#sailing-start').click();
   assert.equal(await page.locator('#family-roster li').count(),18);
-  assert.equal(await page.evaluate(()=>localStorage.getItem('valent-rescate-familia-v1')),null);
+  assert.equal(await page.evaluate(key=>localStorage.getItem(key),completionKey),null);
   assert.equal(await page.locator('.character-sway').first().evaluate(e=>getComputedStyle(e).animationName),'none');
   const box=await page.locator('#sailing-canvas').boundingBox();
   // Two missed catches consume the two lives; a first miss must not end the game.
@@ -33,7 +35,7 @@ const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
   }
   assert(survivedFirstMiss);assert.equal(await page.locator('#rescue-lives').textContent(),'♥ 0');
   assert(await page.locator('#rescue-retry').isVisible());assert.equal(await page.locator('#sailing-reward').isVisible(),false);
-  assert.equal(await page.evaluate(()=>localStorage.getItem('valent-rescate-familia-v1')),null);
+  assert.equal(await page.evaluate(key=>localStorage.getItem(key),completionKey),null);
   await page.locator('#rescue-retry').click();assert.equal(await page.locator('#rescue-lives').textContent(),'♥ 2');await page.locator('#rescue-pause').click();
   const score=await page.locator('#sailing-score').textContent();await page.clock.runFor(1500);assert.equal(await page.locator('#sailing-score').textContent(),score);
   await page.locator('#rescue-continue').click();
@@ -54,9 +56,10 @@ const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
   assert.match(await page.locator('#sailing-reward').textContent(),/Tu bebito, Antonio/);
   assert(await page.locator('#rescue-story').isVisible());await page.locator('#dialogue-next').evaluate(e=>e.scrollIntoView({behavior:'instant',block:'center'}));await page.clock.runFor(100);await page.locator('#dialogue-next').click();assert.match(await page.locator('#speaker').textContent(),/Lucero/);
   assert(!(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)));
-  await page.locator('#rescue-save').click();await page.waitForURL(/index.html/);
+  await page.locator('#rescue-save').click();await page.waitForURL(dev?/index_v2.html/:/index.html/);
   assert.equal(await page.locator('.island.complete').count(),1);assert.equal(await page.locator('.island.locked').count(),5);
-  assert.equal(await page.evaluate(()=>localStorage.getItem('valent-rescate-familia-v1')),'complete');assert.deepEqual(errors,[]);
+  assert.equal(await page.evaluate(key=>localStorage.getItem(key),completionKey),'complete');if(dev){assert.equal(await page.locator('.island[data-status=available]').count(),1);assert.match(await page.locator('.island[data-status=available]').getAttribute('aria-label'),/Gizmo/);assert.equal(await page.evaluate(()=>localStorage.getItem('valent-rescate-familia-v1')),null);}
+  assert.deepEqual(errors,[]);
   console.log(`PASS ${engine.name()} ${mobile?'mobile':'desktop'}: intro, strict loss, retry, pause, 18 catches, ending, isolated save, five locked islands`);
   await browser.close();
  }
