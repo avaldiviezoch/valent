@@ -57,7 +57,7 @@ const completionKey=dev?'valent-development-island-1-v1':'valent-rescate-familia
   assert(await page.locator('#rescue-story').isVisible());await page.locator('#dialogue-next').evaluate(e=>e.scrollIntoView({behavior:'instant',block:'center'}));await page.clock.runFor(100);await page.locator('#dialogue-next').click();assert.match(await page.locator('#speaker').textContent(),/Lucero/);
   assert(!(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)));
   await page.locator('#rescue-save').click();await page.waitForURL(dev?/index_v2.html/:/index.html/);
-  assert.equal(await page.locator('.island.complete').count(),1);assert.equal(await page.locator('.island.locked').count(),5);
+  assert.equal(await page.locator('.island.complete').count(),1);assert.equal(await page.locator('.island.locked').count(),dev?4:5);
   assert.equal(await page.evaluate(key=>localStorage.getItem(key),completionKey),'complete');if(dev){assert.equal(await page.locator('.island[data-status=available]').count(),1);assert.match(await page.locator('.island[data-status=available]').getAttribute('aria-label'),/Gizmo/);assert.equal(await page.evaluate(()=>localStorage.getItem('valent-rescate-familia-v1')),null);}
   assert.deepEqual(errors,[]);
   console.log(`PASS ${engine.name()} ${mobile?'mobile':'desktop'}: intro, strict loss, retry, pause, 18 catches, ending, isolated save, five locked islands`);
