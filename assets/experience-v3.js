@@ -1,0 +1,191 @@
+/* Frozen from v2 by scripts/build-development-v3.py; production and v2 unchanged. */
+/* Nuestra aventura — shared atmosphere and interaction. No external JS dependencies. */
+'use strict';
+const $ = id => document.getElementById(id);
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const storage = {
+  get(key, fallback = null) { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } },
+  set(key, value) { try { localStorage.setItem(key, value); } catch { /* The adventure still works without persistence. */ } }
+};
+const keys = DevelopmentJourney.keys;
+// A chapter is released only after it has been prepared AND its mesario has arrived.
+const chapters=DevelopmentJourney.chapters;
+function chapterAvailable(i,now=new Date()){return DevelopmentJourney.available(i,now);}
+// Audio effects are enabled by default; browsers unlock audio on the first interaction.
+const soundOn = true;
+let audio;
+function tone(notes = [523,659,784]) {
+  if (!soundOn) return;
+  try {
+    audio ||= new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state === 'suspended') audio.resume();
+    notes.forEach((f,i) => { const o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime+i*.12; o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.001,t);g.gain.exponentialRampToValueAtTime(document.body.dataset.page==='rescue'?.0175:.035,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.8);o.connect(g).connect(audio.destination);o.start(t);o.stop(t+.85); });
+  } catch { toast('Tu navegador no permite reproducir sonido.'); }
+}
+function toast(message) { let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');document.body.append(t);}t.textContent=message;t.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove('show'),3200); }
+function burst(x=innerWidth/2,y=innerHeight/2,n=26) { if(reduced)return;let layer=$('fx');if(!layer){layer=document.createElement('div');layer.id='fx';layer.className='fx';layer.setAttribute('aria-hidden','true');document.body.append(layer);}for(let i=0;i<n;i++){const p=document.createElement('i'),a=Math.random()*Math.PI*2,d=40+Math.random()*150;p.style.cssText=`left:${x}px;top:${y}px;--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d-35}px;animation-duration:${.8+Math.random()}s;background:${i%3?'#f4dca5':'#b7dec8'}`;layer.append(p);setTimeout(()=>p.remove(),2100);} }
+function reward(id) { const el=$(id);el.hidden=false;tone();burst();el.scrollIntoView({behavior:reduced?'instant':'smooth',block:'center'});el.querySelector('h2')?.focus({preventScroll:true}); }
+function saveStop(i) {
+ if(!DevelopmentJourney.complete(i)){toast('Primero completa la isla anterior.');return;}
+ location.href='../index_v3.html?isla='+(i+1);
+}
+
+document.querySelectorAll('[data-finish]').forEach(b=>b.addEventListener('click',()=>saveStop(Number(b.dataset.finish))));
+const boatSVG = `<svg viewBox="0 0 70 90" aria-hidden="true"><path d="M33 10V65" stroke="#735842" stroke-width="3"/><path d="M29 12L7 55H29Z" fill="#e9dfc5"/><path d="M37 20L61 55H37Z" fill="#faf0d5"/><path d="M6 65Q34 73 64 62L54 78Q34 89 16 78Z" fill="#533e2e" stroke="#d6b97f" stroke-width="2"/><path d="M17 69L53 67" stroke="#c1a16c" stroke-width="3"/></svg>`;
+
+function setupMap() {
+ const stops=chapters.map(chapter=>({...chapter,x:0,y:0}));
+ const atlas=$('atlas'),world=$('world'),islands=$('islands'),ship=$('ship');ship.innerHTML=boatSVG;
+ let scale=1,tx=0,ty=0,travel=false,visited=[];
+ stops.forEach((s,i)=>{
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('class','island');g.setAttribute('transform',`translate(${s.x} ${s.y})`);
+  g.setAttribute('role','button');g.setAttribute('tabindex','0');g.setAttribute('aria-label',`${i+1}. ${s.title}`);
+  g.innerHTML=`<g class="terrain"></g><circle class="marker" cx="0" cy="30" r="15"/><text class="check" x="0" y="35">${i+1}</text><rect class="label-bg" x="-117" y="92" width="234" height="66" rx="12"/><text class="number" x="0" y="113">${String(i+1).padStart(2,'0')} · ${s.type.toUpperCase()}</text><text class="name" x="0" y="141">${s.title}</text>`;
+  if(i===2){const name=g.querySelector('.name');name.setAttribute('y','131');name.style.fontSize='20px';name.innerHTML='<tspan x="0">La isla del amor</tspan><tspan x="0" dy="21">de madre</tspan>';}
+  g.addEventListener('click',()=>{if(!suppressClick)open(i)});
+  g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open(i)}});
+  islands.append(g);
+ });
+ // Each destination has its own photographed-style terrain and coastline.
+ const landscapes=[
+  {asset:'island.webp',description:'Isla tropical de palmeras y colinas',width:290,height:194},
+  {asset:'island-crescent.webp',description:'Bahía de arena en media luna',width:330,height:220},
+  {asset:'island-twins.webp',description:'Dos islotes unidos por un banco de arena',width:330,height:220},
+  {asset:'island-volcanic.webp',description:'Isla volcánica de costas oscuras',width:310,height:220},
+  {asset:'island-waterfall.webp',description:'Acantilados de selva y una cascada',width:330,height:220},
+  {asset:'island-atoll.webp',description:'Atolón de coral con laguna turquesa',width:320,height:220}
+ ];
+ [...islands.children].forEach((g,i)=>{
+  const land=landscapes[i];
+  g.dataset.landscape=land.asset;
+  const asset=chapterAvailable(i)?land.asset:land.asset.replace('.webp','-locked.webp');
+  g.querySelector('.terrain').innerHTML=`<image href="assets/${asset}" x="${-land.width/2}" y="${-land.height/2}" width="${land.width}" height="${land.height}" preserveAspectRatio="xMidYMid meet"><title>${land.description}</title></image>`;
+ });
+ function render(){world.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`;}
+ function fit(){
+  const w=atlas.clientWidth,h=atlas.clientHeight,portrait=h/w>.8;
+  const positions=portrait?[[190,135],[570,295],[220,465],[560,640],[170,815],[575,995]]:[[190,260],[630,145],[1120,300],[1220,640],[700,560],[230,690]];
+  document.body.dataset.layout=portrait?'portrait':'landscape';
+  stops.forEach((s,i)=>{[s.x,s.y]=positions[i];islands.children[i].setAttribute('transform',`translate(${s.x} ${s.y})`);});
+  const ww=portrait?760:1460,wh=portrait?1160:875;
+  world.style.width=ww+'px';world.style.height=wh+'px';
+  world.querySelector(':scope > svg').setAttribute('viewBox',`0 0 ${ww} ${wh}`);
+  const path=portrait?'M190 135Q455 110 570 295Q510 430 220 465Q350 545 560 640Q470 800 170 815Q340 1030 575 995':'M190 260Q350 70 630 145Q950 100 1120 300Q1350 440 1220 640Q960 740 700 560Q450 540 230 690';
+  world.querySelectorAll('.route,.route-glow').forEach(p=>p.setAttribute('d',path));
+  // Fit the entire atlas, including island labels, within its actual available space.
+  scale=Math.max(.01,Math.min((w-20)/ww,(h-8)/wh));
+  tx=(w-ww*scale)/2;ty=(h-wh*scale)/2;
+  const latest=Math.max(0,visited.lastIndexOf(true));
+  ship.style.left=stops[latest].x+'px';ship.style.top=(stops[latest].y+58)+'px';render();
+ }
+ function zoom(f,x=atlas.clientWidth/2,y=atlas.clientHeight/2){const old=scale;scale=Math.max(.27,Math.min(2.2,scale*f));tx=x-(x-tx)*scale/old;ty=y-(y-ty)*scale/old;render();}
+ // The map fits automatically. Pinch and trackpad zoom remain available without toolbar buttons.
+ atlas.addEventListener('dblclick',fit);
+ atlas.addEventListener('wheel',e=>{e.preventDefault();const r=atlas.getBoundingClientRect();zoom(e.deltaY<0?1.08:.92,e.clientX-r.left,e.clientY-r.top)},{passive:false});
+ const pointers=new Map();let suppressClick=false,start=null,lastDistance=0;
+ atlas.addEventListener('pointerdown',e=>{if(e.button!==0)return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});start={x:e.clientX,y:e.clientY};suppressClick=false;});
+ atlas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;const previous=pointers.get(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1){if(Math.hypot(e.clientX-start.x,e.clientY-start.y)>7)suppressClick=true;if(suppressClick){tx+=e.clientX-previous.x;ty+=e.clientY-previous.y;render();}}else{const p=[...pointers.values()],d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(lastDistance)zoom(d/lastDistance,(p[0].x+p[1].x)/2-atlas.getBoundingClientRect().left,(p[0].y+p[1].y)/2-atlas.getBoundingClientRect().top);lastDistance=d;suppressClick=true;}});
+ function end(e){pointers.delete(e.pointerId);lastDistance=0;setTimeout(()=>{if(!pointers.size)suppressClick=false},100);}window.addEventListener('pointerup',end);window.addEventListener('pointercancel',end);
+ const menu=$('voyage-menu'),intro=$('voyage-intro'),toggle=$('menu-toggle');
+ stops.forEach((stop,i)=>{
+  const button=document.createElement('button');button.type='button';button.dataset.chapter=i;
+  button.innerHTML=`<span class="chapter-link-number">${String(i+1).padStart(2,'0')}</span><span><strong>${stop.title}</strong><small></small></span><span class="chapter-link-symbol" aria-hidden="true"></span>`;
+  button.onclick=()=>{if(!chapterAvailable(i))return;menu.close();open(i);};
+  $('chapter-links').append(button);
+ });
+ function update(){
+  visited=keys.map((_,i)=>DevelopmentJourney.completed(i));
+  [...islands.children].forEach((g,i)=>{
+   const status=DevelopmentJourney.status(i),available=chapterAvailable(i),complete=status==='complete';
+   g.classList.toggle('complete',complete);g.classList.toggle('locked',!available);g.dataset.status=status;
+   const source='assets/'+(available?landscapes[i].asset:landscapes[i].asset.replace('.webp','-locked.webp'));
+   g.querySelector('.terrain image').setAttribute('href',source);
+   g.setAttribute('aria-disabled',String(!available));g.querySelector('.check').textContent=complete?'✓':i+1;
+   const label=complete?'completada, disponible para volver a jugar':available?'disponible':status==='previous'?'completa primero la isla anterior':'en preparación';
+   g.setAttribute('aria-label',`${i+1}. ${stops[i].title}, ${label}`);
+   const row=$('chapter-links').children[i];row.disabled=!available;
+   row.querySelector('small').textContent=complete?'Completada · Volver a jugar':available?'Disponible para ti':status==='previous'?'Completa primero la isla anterior':'En preparación · un próximo mesario';
+   row.querySelector('.chapter-link-symbol').textContent=complete?'✓':available?'→':'◇';
+  });
+  const count=visited.filter(Boolean).length,next=chapters.findIndex((_,i)=>chapterAvailable(i)&&!visited[i]);
+  $('journey-progress').textContent=`${count} / 6 recuerdos guardados · `+(next>=0?chapters[next].title+' te espera':'El siguiente capítulo está en preparación');
+  const notice=document.querySelector('.voyage-intro-today');
+  if(notice)notice.textContent=next>=0?(count?'Tu avance está guardado. Ahora te espera '+chapters[next].title+'.':'Hoy comenzamos con Izar las velas. Después te espera La torre de Gizmo.'):'Tus recuerdos están guardados. El siguiente capítulo sigue en preparación.';
+  const current=next>=0?next:Math.max(0,visited.lastIndexOf(true));
+  ship.style.left=stops[current].x+'px';ship.style.top=(stops[current].y+58)+'px';
+ }
+ function open(i){
+  if(travel)return;
+  if(!chapterAvailable(i)){toast(DevelopmentJourney.status(i)==='previous'?'Completa primero la isla anterior.':'Tu Antonio está preparando este capítulo para otro mesario.');tone([294,349]);return;}
+  travel=true;tone([392,523,659]);const stop=stops[i];ship.classList.add('sailing');
+  ship.style.transition=reduced?'none':'left 1.6s ease-in-out,top 1.6s ease-in-out';
+  ship.style.left=stop.x+'px';ship.style.top=(stop.y+50)+'px';toast('Navegando hacia '+stop.title+'…');
+  setTimeout(()=>location.href='islas/'+stop.file+'.html?dev=3',reduced?40:1700);
+ }
+ toggle.onclick=()=>{toggle.setAttribute('aria-expanded','true');menu.showModal();};
+ $('menu-close').onclick=()=>menu.close();
+ menu.addEventListener('close',()=>{toggle.setAttribute('aria-expanded','false');toggle.focus();});
+ menu.addEventListener('click',e=>{if(e.target===menu){const r=menu.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)menu.close();}});
+ $('show-intro').onclick=()=>{menu.close();intro.showModal();};
+ const rememberIntro=()=>{try{sessionStorage.setItem('valent-development-v3-intro-v1','seen');}catch{}};
+ $('voyage-start').onclick=()=>intro.close();
+ intro.addEventListener('close',()=>{rememberIntro();toggle.focus();});
+ let hasSeenIntro=false;try{hasSeenIntro=sessionStorage.getItem('valent-development-v3-intro-v1')==='seen';}catch{}
+ if(!hasSeenIntro&&!location.search.includes('isla=')&&!location.search.includes('pendiente=')&&!location.search.includes('completada='))intro.showModal();
+ if(location.search.includes('completada=')){history.replaceState(null,'',location.pathname);setTimeout(()=>toast('Esta isla ya está completada. Tu recuerdo quedó guardado.'),200);}
+ if(location.search.includes('pendiente=')){history.replaceState(null,'',location.pathname);toast('Esta sorpresa se abrirá en un próximo mesario. Hoy nos espera Izar las velas.');}
+ new ResizeObserver(fit).observe(atlas);
+ window.addEventListener('resize',fit);window.addEventListener('pageshow',()=>{travel=false;ship.classList.remove('sailing');update()});window.addEventListener('storage',update);window.addEventListener('development-progress',update);fit();update();
+ if(location.search.includes('isla')){history.replaceState(null,'',location.pathname);setTimeout(()=>{toast('Un nuevo recuerdo en nuestra historia.');burst(innerWidth/2,innerHeight-70)},400);}
+}
+
+function setupEncounter(){let light=0;const lantern=$('lantern'),status=$('encounter-status');for(let i=0;i<(reduced?0:18);i++){const f=document.createElement('i');f.className='firefly';f.style.cssText=`left:${10+Math.random()*80}%;top:${10+Math.random()*75}%;animation-delay:${-Math.random()*5}s`; $('encounter-scene').append(f);}lantern.onclick=()=>{light++;lantern.style.setProperty('--light',Math.min(100,light*25));$('encounter-pips').children[light-1]?.classList.add('done');tone([392+light*65]);status.textContent=['','Una luz pequeña puede cambiar el rumbo.','Hay encuentros que se sienten como volver a casa.','Y entre todas las rutas, me quedo contigo.','Nuestro primer recuerdo está listo.'][light];const r=lantern.getBoundingClientRect();burst(r.x+r.width/2,r.y+r.height/2,12);if(light===4){lantern.disabled=true;setTimeout(()=>reward('encounter-reward'),reduced?0:700)}};}
+
+function setupWords(){
+ // Build letters from known non-overlapping neighboring paths, then fill unused cells.
+ const paths=[[0,1,6,7],[4,9,14,15],[8,13,10]],words=['AMOR','LUNA','SOL'];
+ let letters=Array.from({length:16},()=> 'TEVCB'[Math.floor(Math.random()*5)]);paths.forEach((p,i)=>p.forEach((n,j)=>letters[n]=words[i][j]));
+ // Mirror or rotate the whole board, preserving every valid path.
+ const turns=Math.floor(Math.random()*4);for(let r=0;r<turns;r++){const copy=[...letters];for(let i=0;i<16;i++)letters[(i%4)*4+3-Math.floor(i/4)]=copy[i];}
+ let step=0,selection=[],drag=false;const board=$('word-board'),line=$('word-line');
+ const tiles=letters.map((letter,i)=>{const b=document.createElement('button');b.className='letter-tile';b.textContent=letter;b.setAttribute('aria-label',`Letra ${letter}, fila ${Math.floor(i/4)+1}, columna ${i%4+1}`);b.dataset.index=i;board.append(b);b.addEventListener('pointerdown',e=>{if(e.button!==0)return;drag=true;select(i);});b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select(i)}});return b;});
+ function draw(){const br=board.getBoundingClientRect();line.setAttribute('points',selection.map(i=>{const r=tiles[i].getBoundingClientRect();return `${(r.x+r.width/2-br.x)/br.width*100},${(r.y+r.height/2-br.y)/br.height*100}`}).join(' '));}
+ function clear(){selection=[];tiles.forEach(t=>t.classList.remove('selected'));draw();}
+ function select(i){if(step===3||tiles[i].disabled||selection.includes(i))return;const last=selection.at(-1);if(last!==undefined&&(Math.abs(i%4-last%4)>1||Math.abs(Math.floor(i/4)-Math.floor(last/4))>1)){ $('word-status').textContent='Conecta una letra vecina, también en diagonal.';return;}if(letters[i]!==words[step][selection.length]){$('word-status').textContent='Prueba otra ruta. Tu palabra comienza de nuevo.';clear();tone([220]);return;}selection.push(i);tiles[i].classList.add('selected');draw();tone([440+selection.length*70]);if(selection.length===words[step].length){selection.forEach(j=>{tiles[j].classList.add('found');});$('word-list').children[step].classList.add('done');$('word-list').children[step].classList.remove('current');step++;clear();if(step===3){$('word-status').textContent='Tres palabras, una misma historia.';$('word-reset').hidden=true;reward('word-reward');}else{$('word-list').children[step].classList.add('current');$('word-status').textContent='Ahora conecta '+words[step]+'.';}}}
+ board.addEventListener('pointermove',e=>{if(!drag)return;const t=document.elementFromPoint(e.clientX,e.clientY)?.closest('.letter-tile');if(t&&board.contains(t))select(Number(t.dataset.index));});window.addEventListener('pointerup',()=>drag=false);window.addEventListener('pointercancel',()=>drag=false);$('word-reset').onclick=()=>{clear();$('word-status').textContent='Conecta '+words[step]+' con letras vecinas.';};window.addEventListener('resize',draw);
+}
+
+function setupSky(){
+ const stars=[...document.querySelectorAll('.sky-star')],sequences=[[0,2,4],[3,1,4,2],[0,1,3,4,2]],labels=['Acompañarnos','Descubrir','Construir','Celebrar','Elegirnos'];let round=0,index=0,busy=false,run=0,started=false;
+ const status=$('sky-status'),play=$('sky-play'),line=$('sky-line');
+ const wait=ms=>new Promise(r=>setTimeout(r,ms));
+ function enabled(on){stars.forEach(s=>s.disabled=!on)}enabled(false);
+ function light(i){stars[i].classList.add('lit');tone([440+i*80]);}
+ async function demonstrate(){if(busy)return;busy=true;started=true;const token=++run;index=0;enabled(false);line.setAttribute('points','');stars.forEach(s=>s.classList.remove('correct','lit'));play.disabled=true;play.textContent='Observa las estrellas…';status.textContent=`Ronda ${round+1} de 3 · recuerda ${sequences[round].length} estrellas.`;await wait(reduced?200:650);for(const i of sequences[round]){if(token!==run)return;light(i);await wait(reduced?850:700);stars[i].classList.remove('lit');await wait(280);}busy=false;enabled(true);play.disabled=false;play.textContent='Ver la secuencia otra vez';status.textContent='Tu turno: repite el orden de las luces.';}
+ stars.forEach((s,i)=>s.onclick=async()=>{if(busy||!started)return;if(i!==sequences[round][index]){tone([262,220]);toast('Casi. Puedes volver a mirar la secuencia.');index=0;stars.forEach(s=>s.classList.remove('correct'));line.setAttribute('points','');return;}light(i);setTimeout(()=>s.classList.remove('lit'),400);s.classList.add('correct');index++;line.setAttribute('points',sequences[round].slice(0,index).map(j=>`${parseFloat(stars[j].style.left)},${parseFloat(stars[j].style.top)}`).join(' '));$('sky-meaning').textContent=labels[i];if(index===sequences[round].length){enabled(false);busy=true;play.disabled=true;$('sky-pips').children[round].classList.add('done');round++;status.textContent='Una nueva parte de nuestro cielo.';await wait(800);busy=false;if(round===3){play.hidden=true;status.textContent='Hay un universo entero por descubrir contigo.';line.setAttribute('points','21,62 17,35 33,22 50,38 67,22 83,35 79,62 50,83 21,62');reward('sky-reward');}else{play.disabled=false;play.textContent='Descubrir la siguiente secuencia';}}});play.onclick=demonstrate;
+}
+
+function setupSailing(){
+ const canvas=$('sailing-canvas'),ctx=canvas.getContext('2d'),W=800,H=480;let mode='idle',x=400,target=400,score=0,distance=0,rocks=[],buoys=[],wake=[],last=0,cooldown=0,nextBuoy=2,nextRock=1,keysDown=new Set(),raf=0;
+ let seed=1024;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
+ function start(){if(mode==='playing')return;mode='playing';x=target=400;score=0;distance=0;rocks=[];buoys=[];wake=[];cooldown=0;nextBuoy=.7;nextRock=1.5;last=0;$('sailing-overlay').hidden=true;$('sailing-score').textContent='0 / 5 recuerdos';$('sailing-state').textContent='Sigue las luces doradas';$('sailing-start').disabled=true;if(!raf)raf=requestAnimationFrame(frame);}
+ function pointer(e){const r=canvas.getBoundingClientRect();target=Math.max(40,Math.min(W-40,(e.clientX-r.left)/r.width*W));}
+ canvas.addEventListener('pointerdown',e=>{if(mode==='playing'){canvas.setPointerCapture(e.pointerId);pointer(e)}});canvas.addEventListener('pointermove',e=>{if(mode==='playing'&&(e.buttons||e.pointerType==='touch'))pointer(e)});
+ window.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','a','d','A','D'].includes(e.key)&&mode==='playing'){e.preventDefault();keysDown.add(e.key.toLowerCase());}});window.addEventListener('keyup',e=>keysDown.delete(e.key.toLowerCase()));window.addEventListener('blur',()=>keysDown.clear());
+ document.querySelectorAll('[data-steer]').forEach(b=>{b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture(e.pointerId);keysDown.add(b.dataset.steer)};const end=()=>keysDown.delete(b.dataset.steer);b.onpointerup=end;b.onpointercancel=end;b.onlostpointercapture=end;b.onclick=()=>{target=Math.max(40,Math.min(W-40,target+(b.dataset.steer==='arrowleft'?-65:65)));};});
+ $('sailing-start').onclick=start;
+ function drawBoat(){ctx.save();ctx.translate(x,370);ctx.rotate((target-x)*.001);ctx.shadowColor='#001722';ctx.shadowBlur=15;ctx.shadowOffsetY=8;ctx.fillStyle='#694b32';ctx.beginPath();ctx.moveTo(0,-42);ctx.quadraticCurveTo(30,-10,15,40);ctx.quadraticCurveTo(0,52,-15,40);ctx.quadraticCurveTo(-30,-10,0,-42);ctx.fill();ctx.strokeStyle='#c2a578';ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle='#b39970';ctx.fillRect(-10,-10,20,35);ctx.strokeStyle='#473b30';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,-30);ctx.lineTo(0,32);ctx.stroke();ctx.fillStyle='#f0e6cd';ctx.beginPath();ctx.moveTo(3,-29);ctx.lineTo(33,17);ctx.lineTo(3,10);ctx.closePath();ctx.fill();ctx.fillStyle='#c9c8b4';ctx.beginPath();ctx.moveTo(-3,-24);ctx.lineTo(-25,10);ctx.lineTo(-3,8);ctx.closePath();ctx.fill();ctx.restore();}
+ function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle='#092d3a25';ctx.fillRect(0,0,W,H);if(!reduced){ctx.strokeStyle='#cfecdf18';ctx.lineWidth=1;for(let row=0;row<10;row++){ctx.beginPath();for(let k=0;k<=20;k++){const px=k*40,py=(row*65+distance*28)%620-60+Math.sin(k*.7+row)*6;k?ctx.lineTo(px,py):ctx.moveTo(px,py);}ctx.stroke();}}wake.forEach(p=>{ctx.fillStyle=`rgba(218,239,220,${p.life*.12})`;ctx.beginPath();ctx.ellipse(p.x,p.y,10+(1-p.life)*16,3,0,0,7);ctx.fill();});rocks.forEach(r=>{ctx.save();ctx.translate(r.x,r.y);ctx.strokeStyle='#d6e8ce55';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,10,r.r+12,r.r*.6,0,0,7);ctx.stroke();const g=ctx.createLinearGradient(-r.r,-r.r,r.r,r.r);g.addColorStop(0,'#a7aaa0');g.addColorStop(.45,'#697c79');g.addColorStop(1,'#284a51');ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(-r.r,8);ctx.lineTo(-r.r*.6,-r.r*.5);ctx.lineTo(0,-r.r);ctx.lineTo(r.r*.7,-r.r*.45);ctx.lineTo(r.r,12);ctx.closePath();ctx.fill();ctx.restore();});buoys.forEach(b=>{ctx.save();ctx.translate(b.x,b.y);ctx.shadowColor='#ffe2a5';ctx.shadowBlur=reduced?0:25;ctx.fillStyle='#efd48d';ctx.beginPath();ctx.arc(0,0,10,0,7);ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#ffefd0aa';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(0,0,20,0,7);ctx.stroke();ctx.fillStyle='#324c4d';ctx.font='16px Georgia';ctx.textAlign='center';ctx.fillText('♥',0,6);ctx.restore();});if(cooldown<=0||Math.floor(cooldown*8)%2===0)drawBoat();}
+ function frame(time){raf=0;const dt=last?Math.min((time-last)/1000,.05):0;last=time;if(mode==='playing'&&!document.hidden){distance+=dt;cooldown-=dt;if(keysDown.has('arrowleft')||keysDown.has('a'))target-=330*dt;if(keysDown.has('arrowright')||keysDown.has('d'))target+=330*dt;target=Math.max(40,Math.min(W-40,target));x+=(target-x)*Math.min(1,dt*8);nextRock-=dt;nextBuoy-=dt;if(nextRock<=0){rocks.push({x:65+rand()*670,y:-45,r:18+rand()*13});nextRock=1.6+rand()*.9;}if(nextBuoy<=0){buoys.push({x:75+rand()*650,y:-25});nextBuoy=2.1;}rocks.forEach(r=>r.y+=dt*105);buoys.forEach(b=>b.y+=dt*105);if(!reduced){wake.push({x:x+(rand()-.5)*15,y:408,life:1});wake.forEach(p=>{p.y+=dt*90;p.life-=dt*.7});wake=wake.filter(p=>p.life>0).slice(-60);}rocks.forEach(r=>{if(cooldown<=0&&Math.hypot(r.x-x,(r.y-370)*1.2)<r.r+18){cooldown=1.5;target=x+(x<r.x?-65:65);r.y=600;tone([196,247]);$('sailing-state').textContent='Una ola más. Seguimos juntos.';}});buoys=buoys.filter(b=>{if(Math.hypot(b.x-x,b.y-370)<40){score++;tone([523,659]);$('sailing-score').textContent=score+' / 5 recuerdos';$('sailing-state').textContent=['','El primer encuentro','Las risas compartidas','Los días de calma','Los sueños pendientes','Nuestro horizonte'][score];if(score===5){mode='won';$('sailing-state').textContent='Llegamos juntos';reward('sailing-reward');}return false;}return b.y<540;});rocks=rocks.filter(r=>r.y<550);}draw();if(mode==='playing')raf=requestAnimationFrame(frame);}
+ draw();document.addEventListener('visibilitychange',()=>{last=0;});
+}
+
+function setupGallery(){const photos=[...document.querySelectorAll('.photo')],viewer=$('viewer'),seen=new Set();let current=0,focus;function render(){const p=photos[current];$('viewer-image').src=p.querySelector('img').src;$('viewer-image').alt=p.querySelector('img').alt;$('viewer-caption').textContent=p.querySelector('span').textContent;$('viewer-count').textContent=`${current+1} / ${photos.length}`;seen.add(current);$('album-status').textContent=`${seen.size} de 4 recuerdos abiertos`;$('album-finish').disabled=seen.size<4;}function close(){viewer.hidden=true;document.body.style.overflow='';$('album-main').inert=false;document.querySelector('.nav').inert=false;focus?.focus();}function shift(d){current=(current+d+photos.length)%photos.length;render();}photos.forEach((p,i)=>p.onclick=()=>{focus=p;current=i;render();viewer.hidden=false;$('album-main').inert=true;document.querySelector('.nav').inert=true;document.body.style.overflow='hidden';$('viewer-close').focus();});$('viewer-close').onclick=close;$('viewer-prev').onclick=()=>shift(-1);$('viewer-next').onclick=()=>shift(1);viewer.onclick=e=>{if(e.target===viewer)close()};document.addEventListener('keydown',e=>{if(viewer.hidden)return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')shift(-1);if(e.key==='ArrowRight')shift(1);if(e.key==='Tab'){const buttons=[...viewer.querySelectorAll('button')],i=buttons.indexOf(document.activeElement);if(e.shiftKey&&i===0){e.preventDefault();buttons.at(-1).focus()}else if(!e.shiftKey&&i===buttons.length-1){e.preventDefault();buttons[0].focus()}}});let startX=null;viewer.addEventListener('touchstart',e=>startX=e.touches[0].clientX,{passive:true});viewer.addEventListener('touchend',e=>{if(startX!==null&&Math.abs(e.changedTouches[0].clientX-startX)>45)shift(e.changedTouches[0].clientX<startX?1:-1);startX=null;},{passive:true});document.querySelectorAll('.photo img').forEach(img=>img.onerror=()=>{img.alt='No se pudo cargar esta foto. El recuerdo sigue aquí.';});}
+function setupTreasure(){let opened=false;const count=keys.filter(k=>storage.get(k)==='complete').length;if(count<5){$('treasure-open').hidden=true;$('treasure-locked').hidden=false;return;}$('treasure-open').onclick=()=>{if(opened)return;opened=true;$('treasure-open').disabled=true;$('treasure-scene').classList.add('open');tone([392,523,659,784]);setTimeout(()=>{DevelopmentJourney.complete(5);$('treasure-open').hidden=true;reward('treasure-reward');},reduced?0:1500);};}
+const setups={map:setupMap,encounter:setupEncounter,words:setupWords,sky:setupSky,sailing:setupSailing,gallery:setupGallery,treasure:setupTreasure};
+const pageIsland=document.body.dataset.island;
+if(pageIsland!==undefined&&!chapterAvailable(Number(pageIsland))){
+ document.querySelector('main')?.setAttribute('hidden','');
+ location.replace('../index_v3.html?'+(DevelopmentJourney.completed(Number(pageIsland))?'completada':'pendiente')+'='+(Number(pageIsland)+1));
+}else {document.querySelector('main')?.removeAttribute('hidden');setups[document.body.dataset.page]?.();}
