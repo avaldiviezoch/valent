@@ -29,10 +29,10 @@ Los diálogos iniciales y finales reutilizan los retratos originales de Antonio 
 | Nivel | Mamá | Hijos elegidos al azar por aparición |
 | --- | --- | --- |
 | 1 · 800 ms | Jenny | Megan y Logan |
-| 2 · 750 ms | Ficha provisional | Ficha provisional |
+| 2 · 750 ms | Karen | Mateo 2 y Nathalia |
 | 3 · 700 ms | Mamá | Iván, Jhon y Harry |
 
-`assets/mother-v3-portraits.js` agrupa los retratos en `levels`. Para completar el segundo nivel, editar `levels[1].mother.src` y añadir los retratos definitivos en `levels[1].children`. Un `src: null` conserva la ficha de texto. Cada aparición de un Hijo selecciona una cara al azar dentro de su nivel y la conserva hasta que esa casilla cambie; las actualizaciones de otras casillas no vuelven a sortearla. Los retratos ocupan la ficha sin nombres visibles.
+`assets/mother-v3-portraits.js` agrupa los retratos en `levels`. Los tres niveles tienen sus retratos asignados. Para cambiarlos, editar `mother.src` y la lista `children` del nivel correspondiente. Un `src: null` conserva la ficha de texto. Cada aparición de un Hijo selecciona una cara al azar dentro de su nivel y la conserva hasta que esa casilla cambie; las actualizaciones de otras casillas no vuelven a sortearla. Los retratos ocupan la ficha sin nombres visibles.
 
 Las rutas son relativas a la página de la isla. Se conserva la transparencia y proporción del PNG mediante `object-fit: contain`. Si falta una imagen, queda la ficha de texto. No se deforman ni modifican los archivos originales.
 
