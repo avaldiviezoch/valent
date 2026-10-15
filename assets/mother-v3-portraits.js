@@ -1,5 +1,5 @@
 /* Original transparent PNGs, grouped by level. Null keeps a text placeholder.
-   Add the pending level-two mother and children here when their portraits arrive.
+   Each appearance chooses one child from the current level.
    Paths are relative to islas/amor_de_madre_v3.html. */
 globalThis.PirateMotherPortraits={
   levels:[
@@ -11,8 +11,11 @@ globalThis.PirateMotherPortraits={
       ]
     },
     {
-      mother:{label:'Mamá',initial:'M',src:null},
-      children:[{label:'Hijo',initial:'H',src:null}]
+      mother:{label:'Mamá',initial:'M',name:'Karen',src:'../familia/KAREN.png'},
+      children:[
+        {label:'Hijo',initial:'H',name:'Mateo 2',src:'../familia/MATEO%202.png'},
+        {label:'Hijo',initial:'H',name:'Nathalia',src:'../familia/NATHALIA.png'}
+      ]
     },
     {
       mother:{label:'Mamá',initial:'M',name:'Mamá',src:'../familia/MAMA.png'},
