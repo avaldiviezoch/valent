@@ -17,11 +17,11 @@ const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
   await page.locator('#mother-pause').click();await page.keyboard.press('Tab');assert.equal(await page.locator('#mother-modal-action').evaluate(el=>el===document.activeElement),true);
   await page.locator('#mother-modal-action').click();
   // A missing future portrait gracefully falls back to text.
-  await page.evaluate(()=>PirateMotherPortraits.mother.src='../familia/portrait-not-selected.png');
+  await page.evaluate(()=>PirateMotherPortraits.levels[0].mother.src='../familia/portrait-not-selected.png');
   await page.locator('.mother-cell').first().click();await page.locator('.mother-cell').first().locator('img').waitFor({state:'detached'});
   assert(await page.locator('.mother-cell').first().locator('.portrait-initial').isVisible());
   // Existing transparent portraits can be selected through the same configuration.
-  await page.evaluate(()=>PirateMotherPortraits.mother.src='../familia/MAMA.png');
+  await page.evaluate(()=>PirateMotherPortraits.levels[0].mother.src='../familia/MAMA.png');
   await page.locator('.mother-cell').nth(1).click();await page.locator('.mother-cell').nth(1).locator('img').evaluate(img=>img.decode());
   assert(await page.locator('.mother-cell').nth(1).locator('.portrait-initial').evaluate(el=>el.hidden));
   assert.equal(await page.locator('.mother-cell').nth(1).locator('img').evaluate(el=>getComputedStyle(el).objectFit),'contain');

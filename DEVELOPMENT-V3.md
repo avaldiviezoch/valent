@@ -26,12 +26,13 @@ Los diálogos iniciales y finales reutilizan los retratos originales de Antonio 
 
 ## Retratos del tablero
 
-Por ahora son fichas de texto **M / Mamá** y **H / Hijo**, sin iconos. Para colocar las caras definitivas, editar solo `src` en `assets/mother-v3-portraits.js`, por ejemplo:
+| Nivel | Mamá | Hijos elegidos al azar por aparición |
+| --- | --- | --- |
+| 1 · 800 ms | Jenny | Megan y Logan |
+| 2 · 750 ms | Ficha provisional | Ficha provisional |
+| 3 · 700 ms | Mamá | Iván, Jhon y Harry |
 
-```js
-mother: {label:'Mamá',initial:'M',src:'../familia/MAMA.png'},
-child: {label:'Hijo',initial:'H',src:'../familia/LOGAN.png'}
-```
+`assets/mother-v3-portraits.js` agrupa los retratos en `levels`. Para completar el segundo nivel, editar `levels[1].mother.src` y añadir los retratos definitivos en `levels[1].children`. Un `src: null` conserva la ficha de texto. Cada aparición de un Hijo selecciona una cara al azar dentro de su nivel y la conserva hasta que esa casilla cambie; las actualizaciones de otras casillas no vuelven a sortearla. Los retratos ocupan la ficha sin nombres visibles.
 
 Las rutas son relativas a la página de la isla. Se conserva la transparencia y proporción del PNG mediante `object-fit: contain`. Si falta una imagen, queda la ficha de texto. No se deforman ni modifican los archivos originales.
 
@@ -53,6 +54,7 @@ node tests/mother-v3-engine.cjs
 node tests/journey-v3-state.cjs
 node tests/mother-v3.cjs
 node tests/mother-v3-layout.cjs
+node tests/mother-v3-portraits.cjs
 ```
 
 Las pruebas cubren tiempos exactos, casillas reemplazadas, aleatoriedad, pérdida, reintento, pausa, teclado, tres victorias, carta final, repetición, persistencia, rutas bloqueadas, importación y aislamiento de v2/producción. `VALENT_TEST_URL` permite ejecutar las pruebas de navegador contra GitHub Pages.
