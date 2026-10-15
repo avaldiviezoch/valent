@@ -54,7 +54,7 @@ const base=process.env.VALENT_TEST_URL||'http://127.0.0.1:8765';
   assert.deepEqual(errors,[]);
   assert.equal(await page.evaluate(()=>localStorage.getItem('valent-development-island-2-v1')),'complete');
   await page.locator('#tower-return').click();await page.waitForURL(/index_v2.html/);
-  assert.equal(await page.locator('.island.complete').count(),2);assert.equal(await page.locator('.island[aria-disabled="false"]').count(),0);
+  assert.equal(await page.locator('.island.complete').count(),2);assert.equal(await page.locator('.island[aria-disabled="false"]').count(),2);
   await page.reload();assert.equal(await page.locator('.island.complete').count(),2);
   console.log(`PASS v2 ${engine.name()} ${mobile?'mobile':'desktop'}: dialogue, Gizmo, pause, loss, retry, 20 placements, ending and production progress isolation`);
   await browser.close();

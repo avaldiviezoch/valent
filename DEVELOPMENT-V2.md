@@ -4,7 +4,7 @@ El mapa completo de desarrollo está en **`index_v2.html`**. Es una copia de pro
 
 | Isla | Ruta de desarrollo | Estado |
 | --- | --- | --- |
-| Izar las velas | `islas/rescate_v2.html` | Disponible si no se ha completado |
+| Izar las velas | `islas/rescate_v2.html` | Disponible desde el inicio y para repetir |
 | La torre de Gizmo | `islas/encuentro_v2.html` | Disponible tras completar la primera |
 | Nuestros recuerdos | `islas/recuerdos_v2.html` | En preparación |
 | La luz de encontrarnos | `islas/aventuras_v2.html` | En preparación |
@@ -15,7 +15,7 @@ El mapa completo de desarrollo está en **`index_v2.html`**. Es una copia de pro
 
 ## Progreso
 
-`assets/journey-v2.js` define los seis capítulos y sus claves `valent-development-island-N-v1`. Las victorias se guardan automáticamente en el mismo navegador al completar el juego, antes de volver al mapa. Una isla completada muestra ✓, se ve desactivada y ya no permite volver a jugar, tampoco mediante un enlace directo. El siguiente capítulo solo se puede abrir si está preparado y se han completado todos los anteriores.
+`assets/journey-v2.js` define los seis capítulos y sus claves `valent-development-island-N-v1`. Las victorias se guardan automáticamente en el mismo navegador al completar el juego, antes de volver al mapa. Una isla completada muestra ✓, conserva su color y permite volver a jugar, también mediante un enlace directo. Repetirla no borra victorias ni bloquea niveles posteriores. El siguiente capítulo solo se puede abrir si está preparado y se han completado todos los anteriores.
 
 Si la primera aventura ya está guardada en producción mediante `valent-rescate-familia-v1`, se importa ese recuerdo una sola vez al progreso de desarrollo. No se importan victorias de antiguas demostraciones. Los juegos de desarrollo nunca escriben progreso de producción. Al cerrar y abrir el navegador, el avance se conserva mientras su almacenamiento local siga disponible.
 
@@ -41,7 +41,7 @@ node tests/stack-v2-layout.cjs
 node tests/stack-v2.cjs
 ```
 
-El primer juego también se verifica con `VALENT_DEVELOPMENT=1 node tests/experience.cjs` (en PowerShell: `$env:VALENT_DEVELOPMENT='1'` antes de ejecutar Node). Las pruebas cubren migración, progreso en orden, derrota sin guardado, victoria con guardado automático, recarga, islas completadas desactivadas, rutas directas bloqueadas y ausencia de escrituras de producción, en Chromium y WebKit.
+El primer juego también se verifica con `VALENT_DEVELOPMENT=1 node tests/experience.cjs` (en PowerShell: `$env:VALENT_DEVELOPMENT='1'` antes de ejecutar Node). Las pruebas cubren migración, progreso en orden, derrota sin guardado, victoria con guardado automático, recarga, islas completadas disponibles para repetir, rutas futuras bloqueadas y ausencia de escrituras de producción, en Chromium y WebKit.
 
 ## Promoción
 

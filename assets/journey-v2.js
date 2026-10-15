@@ -25,7 +25,7 @@
     const value=type=>parts.find(p=>p.type===type).value;
     return `${value('year')}-${value('month')}-${value('day')}`>=chapters[i].releaseOn;
   }
-  function available(i,now){return ready(i,now)&&!completed(i)&&keys.slice(0,i).every((_,j)=>completed(j));}
+  function available(i,now){return ready(i,now)&&keys.slice(0,i).every((_,j)=>completed(j));}
   function complete(i){
     if(completed(i))return true;
     if(!available(i))return false;

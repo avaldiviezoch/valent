@@ -96,18 +96,18 @@ function setupMap() {
  function update(){
   visited=keys.map((_,i)=>DevelopmentJourney.completed(i));
   [...islands.children].forEach((g,i)=>{
-   const status=DevelopmentJourney.status(i),available=status==='available',complete=status==='complete';
+   const status=DevelopmentJourney.status(i),available=chapterAvailable(i),complete=status==='complete';
    g.classList.toggle('complete',complete);g.classList.toggle('locked',!available);g.dataset.status=status;
    const source='assets/'+(available?landscapes[i].asset:landscapes[i].asset.replace('.webp','-locked.webp'));
    g.querySelector('.terrain image').setAttribute('href',source);
    g.setAttribute('aria-disabled',String(!available));g.querySelector('.check').textContent=complete?'✓':i+1;
-   const label=complete?'completada, recuerdo guardado':available?'disponible':status==='previous'?'completa primero la isla anterior':'en preparación';
+   const label=complete?'completada, disponible para volver a jugar':available?'disponible':status==='previous'?'completa primero la isla anterior':'en preparación';
    g.setAttribute('aria-label',`${i+1}. ${stops[i].title}, ${label}`);
    const row=$('chapter-links').children[i];row.disabled=!available;
-   row.querySelector('small').textContent=complete?'Completada · Recuerdo guardado':available?'Disponible para ti':status==='previous'?'Completa primero la isla anterior':'En preparación · un próximo mesario';
+   row.querySelector('small').textContent=complete?'Completada · Volver a jugar':available?'Disponible para ti':status==='previous'?'Completa primero la isla anterior':'En preparación · un próximo mesario';
    row.querySelector('.chapter-link-symbol').textContent=complete?'✓':available?'→':'◇';
   });
-  const count=visited.filter(Boolean).length,next=chapters.findIndex((_,i)=>chapterAvailable(i));
+  const count=visited.filter(Boolean).length,next=chapters.findIndex((_,i)=>chapterAvailable(i)&&!visited[i]);
   $('journey-progress').textContent=`${count} / 6 recuerdos guardados · `+(next>=0?chapters[next].title+' te espera':'El siguiente capítulo está en preparación');
   const notice=document.querySelector('.voyage-intro-today');
   if(notice)notice.textContent=next>=0?(count?'Tu avance está guardado. Ahora te espera '+chapters[next].title+'.':'Hoy comenzamos con Izar las velas. Después te espera La torre de Gizmo.'):'Tus recuerdos están guardados. El siguiente capítulo sigue en preparación.';
@@ -116,7 +116,6 @@ function setupMap() {
  }
  function open(i){
   if(travel)return;
-  if(DevelopmentJourney.completed(i)){toast('Esta isla ya está completada. Tu recuerdo quedó guardado.');return;}
   if(!chapterAvailable(i)){toast(DevelopmentJourney.status(i)==='previous'?'Completa primero la isla anterior.':'Tu Antonio está preparando este capítulo para otro mesario.');tone([294,349]);return;}
   travel=true;tone([392,523,659]);const stop=stops[i];ship.classList.add('sailing');
   ship.style.transition=reduced?'none':'left 1.6s ease-in-out,top 1.6s ease-in-out';
