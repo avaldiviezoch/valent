@@ -6,11 +6,11 @@ const storage = {
   get(key, fallback = null) { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } },
   set(key, value) { try { localStorage.setItem(key, value); } catch { /* The adventure still works without persistence. */ } }
 };
-const keys = ['valent-rescate-familia-v1','valent-ruta-personal-v1','valent-recuerdos-personal-v1','valent-luz-encuentro-v1','valent-cielo-personal-v1'];
+const keys = ['valent-rescate-familia-v1','valent-mamas-toxic-v1','valent-recuerdos-personal-v1','valent-luz-encuentro-v1','valent-cielo-personal-v1'];
 // A chapter is released only after it has been prepared AND its mesario has arrived.
 const chapters=[
  {title:'Izar las velas',type:'Nuestro primer juego',file:'encuentro',ready:true,releaseOn:'2026-10-14'},
- {title:'La ruta del corazón',type:'Un pequeño desafío',file:'ruta-corazon',ready:false,releaseOn:'2026-11-14'},
+ {title:'La isla del amor de madre',type:'El tablero pirata de los tóxicos',file:'amor-de-madre',ready:true,releaseOn:'2026-11-14'},
  {title:'Nuestros recuerdos',type:'El álbum',file:'recuerdos',ready:false,releaseOn:'2026-12-14'},
  {title:'La luz de encontrarnos',type:'El encuentro',file:'aventuras',ready:false,releaseOn:'2027-01-14'},
  {title:'Un cielo para dos',type:'La constelación',file:'constelacion',ready:false,releaseOn:'2027-02-14'},
