@@ -19,6 +19,7 @@ const chapters=[
 function chapterAvailable(i,now=new Date()){
  const chapter=chapters[i];if(!chapter?.ready)return false;
  if(i===0)return true;
+ if(storage.get(keys[i-1])!=='complete')return false;
  const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Lima',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
  const part=name=>parts.find(x=>x.type===name).value;
  return `${part('year')}-${part('month')}-${part('day')}`>=chapter.releaseOn;
