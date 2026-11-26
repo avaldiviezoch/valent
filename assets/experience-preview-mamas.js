@@ -6,10 +6,10 @@ const storage = {
   get(key, fallback = null) { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } },
   set(key, value) { try { localStorage.setItem(key, value); } catch { /* The adventure still works without persistence. */ } }
 };
-const keys = ['valent-rescate-familia-v1','valent-preview-mamas-toxic-v1','valent-recuerdos-personal-v1','valent-luz-encuentro-v1','valent-cielo-personal-v1'];
+const keys = ['valent-preview-rescate-familia-v1','valent-preview-mamas-toxic-v1','valent-recuerdos-personal-v1','valent-luz-encuentro-v1','valent-cielo-personal-v1'];
 // A chapter is released only after it has been prepared AND its mesario has arrived.
 const chapters=[
- {title:'Izar las velas',type:'Nuestro primer juego',file:'encuentro',ready:true,releaseOn:'2026-10-14'},
+ {title:'Izar las velas',type:'Nuestro primer juego',file:'encuentro-preview',ready:true,releaseOn:'2026-10-14'},
  {title:'La isla del amor de madre',type:'El tablero pirata de los tóxicos',file:'amor-de-madre-preview',ready:true,releaseOn:'2026-11-14'},
  {title:'Nuestros recuerdos',type:'El álbum',file:'recuerdos',ready:false,releaseOn:'2026-12-14'},
  {title:'La luz de encontrarnos',type:'El encuentro',file:'aventuras',ready:false,releaseOn:'2027-01-14'},
@@ -116,7 +116,7 @@ function setupMap() {
    row.querySelector('small').textContent=available?(complete?'Completado · puedes volver a jugar':'Disponible para ti'):'En preparación · un próximo día 14';
    row.querySelector('.chapter-link-symbol').textContent=available?'→':'◇';
   });
-  $('journey-progress').textContent=visited[0]?'Izar las velas · Recuerdo guardado ♡':'1 juego disponible · 5 sorpresas por descubrir';
+  $('journey-progress').textContent=`${visited.filter(Boolean).length} de 2 juegos completados · 4 sorpresas por descubrir`;
   const current=Math.max(0,visited.lastIndexOf(true));
   ship.style.left=stops[current].x+'px';ship.style.top=(stops[current].y+58)+'px';
  }
@@ -141,7 +141,7 @@ function setupMap() {
  if(location.search.includes('pendiente=')){history.replaceState(null,'',location.pathname);toast('Esta sorpresa se abrirá en un próximo mesario. Hoy nos espera Izar las velas.');}
  new ResizeObserver(fit).observe(atlas);
  window.addEventListener('resize',fit);window.addEventListener('pageshow',()=>{travel=false;ship.classList.remove('sailing');update()});window.addEventListener('storage',update);fit();update();
- if(location.search.includes('isla')){history.replaceState(null,'',location.pathname);setTimeout(()=>{toast('Un nuevo recuerdo en nuestra historia.');burst(innerWidth/2,innerHeight-70)},400);}
+ const completedIsland=new URLSearchParams(location.search).get('isla'); if(completedIsland){history.replaceState(null,'',location.pathname);setTimeout(()=>{toast('Un nuevo recuerdo en nuestra historia.');burst(innerWidth/2,innerHeight-70);if(completedIsland==='1'&&visited[0]&&chapterAvailable(1))open(1);},600);}
 }
 
 function setupEncounter(){let light=0;const lantern=$('lantern'),status=$('encounter-status');for(let i=0;i<(reduced?0:18);i++){const f=document.createElement('i');f.className='firefly';f.style.cssText=`left:${10+Math.random()*80}%;top:${10+Math.random()*75}%;animation-delay:${-Math.random()*5}s`; $('encounter-scene').append(f);}lantern.onclick=()=>{light++;lantern.style.setProperty('--light',Math.min(100,light*25));$('encounter-pips').children[light-1]?.classList.add('done');tone([392+light*65]);status.textContent=['','Una luz pequeña puede cambiar el rumbo.','Hay encuentros que se sienten como volver a casa.','Y entre todas las rutas, me quedo contigo.','Nuestro primer recuerdo está listo.'][light];const r=lantern.getBoundingClientRect();burst(r.x+r.width/2,r.y+r.height/2,12);if(light===4){lantern.disabled=true;setTimeout(()=>reward('encounter-reward'),reduced?0:700)}};}
